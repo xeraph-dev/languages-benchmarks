@@ -1,4 +1,4 @@
-<img width="524" alt="image" src="https://github.com/xeraph-dev/languages-benchmarks/assets/61700204/cc64d237-c827-49f3-ab4f-259310083b8b"># Languages Benchmarks
+# Languages Benchmarks
 
 > [!IMPORTANT]
 > Don't cheat, create a real algorithm that solves the requested problem.
