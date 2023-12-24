@@ -9,7 +9,7 @@ import (
 
 const compare uint32 = 4095
 
-var inputHash = "bgvyzdsv"
+var inputHash = "yzbqklnj"
 
 func main() {
 	for i := 0; ; i++ {
