@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"runtime"
 	"strconv"
-	"time"
 )
 
 const compare uint32 = 255
@@ -16,8 +15,6 @@ var inputHash = "yzbqklnj"
 const MAX_INT = 2_147_483_647 // max int32? i think..
 
 func main() {
-	ssss := time.Now()
-
 	cores := runtime.NumCPU()
 
 	c := make(chan int, 1)
@@ -44,7 +41,7 @@ func main() {
 		}
 	}
 
-	fmt.Printf("%d in %s", result, time.Since(ssss).String())
+	fmt.Printf("%d", result)
 }
 
 func iterate(start int, end int, c chan int) {
