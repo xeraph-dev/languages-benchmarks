@@ -19,7 +19,7 @@ numbers_set = set(range(start, end))
 for i in number_set:
     hash = prehash.copy()
     hash.update(str(i).encode())
-    if hash.hexdigest()[zeroes:]compare_zeroes):
+    if hash.hexdigest()[zeroes:] == compare_zeroes):
         channels.send(channel, i)
         break
 channels.send(channel, None)
