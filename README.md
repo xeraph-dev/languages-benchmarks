@@ -1,7 +1,25 @@
 # Languages Benchmarks
 
 > [!IMPORTANT]
-> Don't cheat, create a real algorithm that solves the requested problem.
+> - Don't cheat, create a real algorithm that solves the requested problem.
+> - Use all the resources provided by the language and its std, even concurrency and/or multithreading.
+> - FFI is not allowed, use the language itself.
+> - Compute the answer by brute force, don't do divide and conquer, but is allowed to split the algorithm by chunks (useful when threading).
+> - Don't do public the answer, do first the oficial challenge with your inputs, and then change to the inputs provided by this readme.
+
+> Structure your subproject to have one executable file per challenge. Example:
+> ```
+> language/
+>   challenge-1/
+>     main.lang
+>   challenge-2/
+>     main.lang
+> ```
+
+## Tools used
+
+- Benchmark: [hyperfine](https://github.com/sharkdp/hyperfine)
+- Task runner: [task](https://taskfile.dev/)
 
 ## [Advent of Code - Year 2015 - Day 4 - part 2](https://adventofcode.com/2015/day/4#part2)
 
