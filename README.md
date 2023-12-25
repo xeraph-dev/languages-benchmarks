@@ -18,14 +18,14 @@ hyperfine --warmup 1 go/build/aoc-year2015-day4 swift/.build/release/aoc-year201
 
 ```shell
 Benchmark 1: go/build/aoc-year2015-day4
-  Time (mean ± σ):     537.6 ms ±   3.5 ms    [User: 2609.2 ms, System: 138.6 ms]
-  Range (min … max):   533.0 ms … 542.0 ms    10 runs
+  Time (mean ± σ):     573.2 ms ±  25.1 ms    [User: 3114.6 ms, System: 137.4 ms]
+  Range (min … max):   538.3 ms … 621.0 ms    10 runs
 
 Benchmark 2: swift/.build/release/aoc-year2015-day4
-  Time (mean ± σ):     11.609 s ±  0.487 s    [User: 11.502 s, System: 0.009 s]
-  Range (min … max):   11.239 s … 12.843 s    10 runs
+  Time (mean ± σ):      9.041 s ±  0.060 s    [User: 8.993 s, System: 0.004 s]
+  Range (min … max):    8.965 s …  9.147 s    10 runs
 
 Summary
   go/build/aoc-year2015-day4 ran
-   21.59 ± 0.92 times faster than swift/.build/release/aoc-year2015-day4
+   15.77 ± 0.70 times faster than swift/.build/release/aoc-year2015-day4
 ```
