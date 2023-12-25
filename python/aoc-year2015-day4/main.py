@@ -15,10 +15,11 @@ from hashlib import md5
 import _xxinterpchannels as channels
 compare_zeroes: str = "0" * zeroes
 prehash = md5(prefix.encode())
-for i in range(start, end):
+numbers_set = set(range(start, end))
+for i in number_set:
     hash = prehash.copy()
     hash.update(str(i).encode())
-    if hash.hexdigest().startswith(compare_zeroes):
+    if hash.hexdigest()[zeroes:]compare_zeroes):
         channels.send(channel, i)
         break
 channels.send(channel, None)
