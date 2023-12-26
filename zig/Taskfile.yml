@@ -1,8 +1,0 @@
-version: "3"
-
-tasks:
-  default:
-    deps: [build:aoc-year2015-day4]
-  
-  build:aoc-year2015-day4:
-    cmds: [zig build]

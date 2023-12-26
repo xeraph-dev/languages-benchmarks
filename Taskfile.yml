@@ -2,7 +2,7 @@ version: "3"
 
 tasks:
   default:
-    deps: [go, rust, swift]
+    deps: [go, rust, swift, zig]
 
   bench:
     deps: [default]
@@ -12,7 +12,8 @@ tasks:
         'php php/aoc-year2015-day4/main.php' \
         'python python/aoc-year2015-day4/main.py' \
         rust/target/release/aoc-year2015-day4 \
-        swift/.build/release/aoc-year2015-day4
+        swift/.build/release/aoc-year2015-day4 \
+        zig/zig-out/bin/aoc-year2015-day4
 
   go:
     dir: go
@@ -25,3 +26,7 @@ tasks:
   swift:
     dir: swift
     cmds: [swift build -c release]
+
+  zig:
+    dir: zig
+    cmds: [zig build]

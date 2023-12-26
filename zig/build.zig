@@ -6,22 +6,13 @@ pub fn build(b: *std.Build) void {
     const optimize = b.standardOptimizeOption(.{});
 
     const exe = b.addExecutable(.{
-        .name = "day-4-1",
-        .root_source_file = .{ .path = "src/aoc-year2015-day4/part1/main.zig" },
+        .name = "aoc-year2015-day4",
+        .root_source_file = .{ .path = "src/aoc-year2015-day4/main.zig" },
         .target = target,
         .optimize = optimize,
     });
 
     b.installArtifact(exe);
-
-    const exe1 = b.addExecutable(.{
-        .name = "day-4-2",
-        .root_source_file = .{ .path = "src/aoc-year2015-day4/part2/main.zig" },
-        .target = target,
-        .optimize = optimize,
-    });
-
-    b.installArtifact(exe1);
 
     const run_cmd = b.addRunArtifact(exe);
 
