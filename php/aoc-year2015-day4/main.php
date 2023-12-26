@@ -14,5 +14,5 @@ function mineAdventCoin($secretKey)
     }
 }
 
-$secretKey = 'your_secret_key';
+$secretKey = 'yzbqklnj';
 var_dump(mineAdventCoin($secretKey));
