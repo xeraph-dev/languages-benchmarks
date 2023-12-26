@@ -3,8 +3,7 @@ from threading import Thread
 import _xxsubinterpreters as interpreters
 import _xxinterpchannels as channels
 
-
-WORKERS = [interpreters.create() for x in range(8)]
+WORKERS = [interpreters.create() for _ in range(8)]
 CHUNK_SIZE = 10000
 
 channel = channels.create()
@@ -23,7 +22,6 @@ for i in range(start, end):
         break
 channels.send(channel, None)
 """
-
 
 def compute(prefix: str, zeroes: int):
     start = 0
@@ -49,10 +47,10 @@ def compute(prefix: str, zeroes: int):
             ).start()
             start += CHUNK_SIZE
 
-        for i in range(len(WORKERS) + 1):
+        for _ in range(len(WORKERS) + 1):
             try:
                 possible_solution = channels.recv(channel)
-                if possible_solution != None:
+                if possible_solution is not None:
                     solutions.append(possible_solution)
             except:
                 if solutions:
@@ -60,5 +58,4 @@ def compute(prefix: str, zeroes: int):
                 else:
                     break
 
-
-print("Result:", compute(prefix="yzbqklnj", zeroes=6))
+print(f"Result: {compute(prefix="yzbqklnj", zeroes=6)}")
