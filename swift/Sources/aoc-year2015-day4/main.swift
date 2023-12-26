@@ -1,15 +1,15 @@
 import CryptoKit
 import Foundation
 
-let zeros = Array(repeating: UInt8(0), count: 3)
+let zeros = [UInt8](repeating: 0, count: 3)[...]
 
 var hash = Insecure.MD5()
-hash.update(data: "yzbqklnj".data(using: .utf8)!)
+hash.update(data: [UInt8]("yzbqklnj".utf8))
 
-for i in 0... {
+for i in 0 ... UInt32.max {
     var hash = hash
-    hash.update(data: i.description.data(using: .utf8)!)
-    if hash.finalize().starts(with: zeros) {
+    hash.update(data: [UInt8](i.description.utf8))
+    if [UInt8](hash.finalize())[0 ... 2] == zeros {
         print(i)
         break
     }
