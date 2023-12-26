@@ -1,0 +1,12 @@
+[package]
+edition = "2021"
+name = "languages-benchmarks"
+version = "0.1.0"
+
+[[bin]]
+name = "aoc-year2015-day4"
+path = "src/aoc-year2015-day4/bin/main.rs"
+
+[dependencies]
+byteorder = "1.5.0"
+md5 = "0.7.0"

@@ -2,16 +2,25 @@ version: "3"
 
 tasks:
   default:
-    deps: [go, swift, php]
+    deps: [go, rust, swift]
 
   bench:
     deps: [default]
     cmds:
-      - hyperfine --warmup 1 go/build/aoc-year2015-day4 swift/.build/release/aoc-year2015-day4 'php php/aoc-year2015-day4/main.php'
+      - hyperfine --warmup 1 \
+        go/build/aoc-year2015-day4 \
+        'php php/aoc-year2015-day4/main.php' \
+        'python python/aoc-year2015-day4/main.py' \
+        rust/target/release/aoc-year2015-day4 \
+        swift/.build/release/aoc-year2015-day4
 
   go:
     dir: go
     cmds: [task]
+
+  rust:
+    dir: rust
+    cmds: [cargo build --release]
 
   swift:
     dir: swift
