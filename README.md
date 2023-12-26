@@ -34,19 +34,53 @@
 Just compute the requested number and print it.
 
 ```shell
-hyperfine --warmup 1 go/build/aoc-year2015-day4 swift/.build/release/aoc-year2015-day4
+hyperfine --warmup 1 go/build/aoc-year2015-day4 'php php/aoc-year2015-day4/main.php' 'python python/aoc-year2015-day4/main.py' rust/target/release/aoc-year2015-day4 swift/.build/release/aoc-year2015-day4
 ```
 
-```shell
-Benchmark 1: go/build/aoc-year2015-day4
-  Time (mean ± σ):     573.2 ms ±  25.1 ms    [User: 3114.6 ms, System: 137.4 ms]
-  Range (min … max):   538.3 ms … 621.0 ms    10 runs
+<section class="tabs">
+  <details open>
+    <summary>summary</summary>
 
-Benchmark 2: swift/.build/release/aoc-year2015-day4
-  Time (mean ± σ):      9.041 s ±  0.060 s    [User: 8.993 s, System: 0.004 s]
-  Range (min … max):    8.965 s …  9.147 s    10 runs
+    Summary
+       go/build/aoc-year2015-day4 ran
+        1.17 ± 0.10 times faster than  rust/target/release/aoc-year2015-day4
+        5.48 ± 0.12 times faster than  php php/aoc-year2015-day4/main.php
+        7.68 ± 0.29 times faster than  python python/aoc-year2015-day4/main.py
+       14.32 ± 0.31 times faster than  swift/.build/release/aoc-year2015-day4
+  </details>
+  <details>
+    <summary>go</summary>
 
-Summary
-  go/build/aoc-year2015-day4 ran
-   15.77 ± 0.70 times faster than swift/.build/release/aoc-year2015-day4
-```
+    Benchmark 1:  go/build/aoc-year2015-day4
+      Time (mean ± σ):     641.1 ms ±  13.3 ms    [User: 3277.2 ms, System: 144.6 ms]
+      Range (min … max):   627.3 ms … 673.0 ms    10 runs
+  </details>
+  <details>
+    <summary>php</summary>
+
+    Benchmark 2:  php php/aoc-year2015-day4/main.php
+      Time (mean ± σ):      3.512 s ±  0.022 s    [User: 3.461 s, System: 0.014 s]
+      Range (min … max):    3.495 s …  3.570 s    10 runs
+  </details>
+  <details>
+    <summary>python</summary>
+
+    Benchmark 3:  python python/aoc-year2015-day4/main.py
+      Time (mean ± σ):      4.922 s ±  0.156 s    [User: 33.330 s, System: 0.183 s]
+      Range (min … max):    4.596 s …  5.140 s    10 runs
+  </details>
+  <details>
+    <summary>rust</summary>
+
+    Benchmark 4:  rust/target/release/aoc-year2015-day4
+      Time (mean ± σ):     753.0 ms ±  59.0 ms    [User: 3417.4 ms, System: 367.8 ms]
+      Range (min … max):   610.9 ms … 812.3 ms    10 runs
+  </details>
+  <details>
+    <summary>swift</summary>
+
+    Benchmark 5:  swift/.build/release/aoc-year2015-day4
+      Time (mean ± σ):      9.179 s ±  0.044 s    [User: 9.105 s, System: 0.005 s]
+      Range (min … max):    9.101 s …  9.237 s    10 runs
+  </details>
+</section>
