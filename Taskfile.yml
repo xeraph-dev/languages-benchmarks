@@ -9,6 +9,7 @@ tasks:
     cmds:
       - hyperfine --warmup 1 \
         go/build/aoc-year2015-day4 \
+        'php php/aoc-year2015-day4/main.php' \
         'python python/aoc-year2015-day4/main.py' \
         rust/target/release/aoc-year2015-day4 \
         swift/.build/release/aoc-year2015-day4
