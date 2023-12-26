@@ -2,16 +2,23 @@ version: "3"
 
 tasks:
   default:
-    deps: [go, swift]
+    deps: [go, rust, swift]
 
   bench:
     deps: [default]
     cmds:
-      - hyperfine --warmup 1 go/build/aoc-year2015-day4 swift/.build/release/aoc-year2015-day4
+      - hyperfine --warmup 1 \
+        go/build/aoc-year2015-day4 \
+        rust/target/release/aoc-year2015-day4 \
+        swift/.build/release/aoc-year2015-day4
 
   go:
     dir: go
     cmds: [task]
+
+  rust:
+    dir: rust
+    cmds: [cargo build --release]
 
   swift:
     dir: swift
