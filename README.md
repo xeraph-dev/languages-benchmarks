@@ -34,19 +34,24 @@
 Just compute the requested number and print it.
 
 ```shell
-hyperfine --warmup 1 go/build/aoc-year2015-day4 swift/.build/release/aoc-year2015-day4
+hyperfine --warmup 1 go/build/aoc-year2015-day4 rust/target/release/aoc-year2015-day4 swift/.build/release/aoc-year2015-day4
 ```
 
 ```shell
-Benchmark 1: go/build/aoc-year2015-day4
-  Time (mean ± σ):     573.2 ms ±  25.1 ms    [User: 3114.6 ms, System: 137.4 ms]
-  Range (min … max):   538.3 ms … 621.0 ms    10 runs
+Benchmark 1:  go/build/aoc-year2015-day4
+  Time (mean ± σ):     597.4 ms ±  28.1 ms    [User: 3233.3 ms, System: 138.6 ms]
+  Range (min … max):   576.4 ms … 660.6 ms    10 runs
 
-Benchmark 2: swift/.build/release/aoc-year2015-day4
-  Time (mean ± σ):      9.041 s ±  0.060 s    [User: 8.993 s, System: 0.004 s]
-  Range (min … max):    8.965 s …  9.147 s    10 runs
+Benchmark 2:  rust/target/release/aoc-year2015-day4
+  Time (mean ± σ):     777.8 ms ±  43.9 ms    [User: 3494.0 ms, System: 387.3 ms]
+  Range (min … max):   720.8 ms … 881.2 ms    10 runs
+
+Benchmark 3:  swift/.build/release/aoc-year2015-day4
+  Time (mean ± σ):      9.125 s ±  0.074 s    [User: 9.069 s, System: 0.003 s]
+  Range (min … max):    9.018 s …  9.231 s    10 runs
 
 Summary
-  go/build/aoc-year2015-day4 ran
-   15.77 ± 0.70 times faster than swift/.build/release/aoc-year2015-day4
+   go/build/aoc-year2015-day4 ran
+    1.30 ± 0.10 times faster than  rust/target/release/aoc-year2015-day4
+   15.28 ± 0.73 times faster than  swift/.build/release/aoc-year2015-day4
 ```
