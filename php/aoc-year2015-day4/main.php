@@ -3,16 +3,16 @@
 function mineAdventCoin($secretKey)
 {
     $number = 0;
+    $target = "\x00\x00\x00";
 
     while (true) {
-        $hash = md5($secretKey . $number);
-        if (substr($hash, 0, 6) === "000000") {
-            return $number;
+        $hash = md5($secretKey . $number, true);
+        if (strncmp($hash, $target, 3) === 0) {
+            return ['number' => $number, 'hash' => bin2hex($hash)];
         }
         $number++;
     }
 }
 
-$secretKey = 'yzbqklnj';
-$answer = mineAdventCoin($secretKey);
-echo "The lowest number is: " . $answer;
+$secretKey = 'your_secret_key';
+var_dump(mineAdventCoin($secretKey));
