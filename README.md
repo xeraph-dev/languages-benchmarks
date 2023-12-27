@@ -24,14 +24,18 @@
 - Benchmark: [hyperfine](https://github.com/sharkdp/hyperfine)
 - Task runner: [task](https://taskfile.dev/)
 
-## [Advent of Code - Year 2015 - Day 4 - part 2](https://adventofcode.com/2015/day/4#part2)
+## [Advent of Code - Year 2015 - Day 4](https://adventofcode.com/2015/day/4)
 
 > [!IMPORTANT]
-> input: `yzbqklnj`
+> The program must accept two positional arguments
+> - the first, a string representing the secret key
+> - the second, an integer between 5 and 7 representing the number of zeros
 >
-> Remember, part 2, six zeros, not five.
+> Try locally with the inputs provided on the challenge page
+>
+> Just compute the requested number and print it
 
-Just compute the requested number and print it.
+### Old benchmarks
 
 ```shell
 hyperfine --warmup 1 \
