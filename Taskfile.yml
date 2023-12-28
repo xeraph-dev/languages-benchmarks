@@ -5,15 +5,12 @@ tasks:
     deps: [go, rust, swift, zig]
 
   bench:
+    deps: [default, bench:aoc-year2015-day4]
+
+  bench:aoc-year2015-day4:
     deps: [default]
     cmds:
-      - hyperfine --warmup 1 \
-        go/build/aoc-year2015-day4 \
-        'php php/aoc-year2015-day4/main.php' \
-        'python python/aoc-year2015-day4/main.py' \
-        rust/target/release/aoc-year2015-day4 \
-        swift/.build/release/aoc-year2015-day4 \
-        zig/zig-out/bin/aoc-year2015-day4
+      - ./bench aoc-year2015-day4
 
   go:
     dir: go
