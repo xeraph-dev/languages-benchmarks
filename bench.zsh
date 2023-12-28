@@ -43,18 +43,17 @@ for challenge name in ${(kv)challenges}; do (
     runs=()
 
     for lang bin in ${(kv)langs}; do
-      eval "run-$lang() { $bin $input | tr -d '\n' | grep -xq $output; }"
-      if ! run-"$lang"; then
+      func="bench-$lang() { timeout $timeout $bin $input | tr -d '\n' | grep -xq $output; }"
+      eval "$func"
+      if ! bench-"$lang"; then
         echo "$lang validation failed"
       else
-        eval "bench-$lang() { bash -c '$(declare -f run-$lang); export -f run-$lang; timeout $timeout bash -c run-$lang'; }"
-        func="$(declare -f bench-"$lang")"
+        runs+=(bench-"$lang")
         if [ -z "$benchs" ]; then
           benchs="$func"
         else
           benchs="$benchs;$func"
         fi
-        runs+=(bench-"$lang")
       fi
     done
 
