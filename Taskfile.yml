@@ -5,12 +5,12 @@ tasks:
     deps: [go, rust, swift, zig]
 
   bench:
-    deps: [default, bench:aoc-year2015-day4]
+    deps: [default]
+    cmds: [./bench.zsh]
 
   bench:aoc-year2015-day4:
     deps: [default]
-    cmds:
-      - ./bench aoc-year2015-day4
+    cmds: [./bench.zsh aoc-year2015-day4]
 
   go:
     dir: go

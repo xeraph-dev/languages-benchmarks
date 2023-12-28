@@ -1,5 +1,7 @@
 #!/usr/bin/env zsh
 
+rm -rf benchmarks
+
 timeout=30
 
 typeset -A challenges
@@ -62,6 +64,7 @@ for challenge name in ${(kv)challenges}; do (
       exit 1
     fi
 
-    bash -c "$benchs; export -f $runs; hyperfine -w 1 -r 10 -i -S bash ${runs[@]}"
+    mkdir -p "benchmarks/$challenge"
+    bash -c "$benchs; export -f $runs; hyperfine -w 1 -r 10 -i -S bash ${runs[@]} --export-markdown 'benchmarks/$challenge/$(basename $case).md'"
   ) done
 ) done
