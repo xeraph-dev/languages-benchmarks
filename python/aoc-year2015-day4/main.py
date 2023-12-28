@@ -79,4 +79,4 @@ if __name__ == "__main__":
         os._exit(1)
 
     print(compute(prefix=prefix, zeroes=zeroes))
-    os._exit(0)
+    exit(0)
