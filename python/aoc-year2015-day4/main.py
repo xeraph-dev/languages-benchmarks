@@ -1,13 +1,13 @@
 ## WARNING: Python 3.12 only
+import os
+import sys
 from threading import Thread
+from time import sleep
 import _xxsubinterpreters as interpreters
 import _xxinterpchannels as channels
 
-
-WORKERS = [interpreters.create() for x in range(8)]
-CHUNK_SIZE = 10000
-
-channel = channels.create()
+WORKERS = [interpreters.create() for x in range(os.cpu_count())]
+CHUNK_SIZE = 2**16
 
 worker_payload = """
 # Needs (channel: int, prefix: str, zeroes: int, start: int, end: int):
@@ -26,39 +26,57 @@ channels.send(channel, None)
 
 
 def compute(prefix: str, zeroes: int):
+    channel = channels.create()
+
     start = 0
     solutions = []
 
     while True:
         for worker in WORKERS:
-            while interpreters.is_running(worker):
-                pass
-            Thread(
-                target=interpreters.run_string,
-                kwargs={
-                    "script": worker_payload,
-                    "id": worker,
-                    "shared": {
-                        "channel": channel,
-                        "prefix": prefix,
-                        "zeroes": zeroes,
-                        "start": start,
-                        "end": start + CHUNK_SIZE,
-                    },
+            worker_arguments = {
+                "script": worker_payload,
+                "id": worker,
+                "shared": {
+                    "channel": channel,
+                    "prefix": prefix,
+                    "zeroes": zeroes,
+                    "start": start,
+                    "end": start + CHUNK_SIZE,
                 },
-            ).start()
+            }
+            Thread(target=interpreters.run_string, kwargs=worker_arguments).start()
             start += CHUNK_SIZE
 
-        for i in range(len(WORKERS) + 1):
+        for worker in WORKERS:
+            while interpreters.is_running(worker):
+                sleep(0.0001)
+
+        for worker in WORKERS:
             try:
                 possible_solution = channels.recv(channel)
                 if possible_solution != None:
                     solutions.append(possible_solution)
-            except:
-                if solutions:
-                    return min(solutions)
-                else:
-                    break
+            except Exception as e:
+                pass
+
+        if solutions:
+            return min(solutions)
 
 
-print("Result:", compute(prefix="yzbqklnj", zeroes=6))
+if __name__ == "__main__":
+    if len(sys.argv) != 3:
+        print("Parameters: secret zeroes")
+        os._exit(1)
+
+    prefix = sys.argv[1]
+
+    try:
+        zeroes = int(sys.argv[2])
+        if zeroes < 0 or zeroes > 32:
+            raise Exception()
+    except:
+        print("Zeroes should be an integer between 0-32")
+        os._exit(1)
+
+    print(compute(prefix=prefix, zeroes=zeroes))
+    exit(0)
