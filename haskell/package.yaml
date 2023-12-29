@@ -26,4 +26,5 @@ executables:
     dependencies:
       - bytestring
       - cryptonite
+      - parallel
       - memory

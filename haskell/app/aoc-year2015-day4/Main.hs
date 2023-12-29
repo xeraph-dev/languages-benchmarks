@@ -1,28 +1,43 @@
 module Main (main) where
 
-import Crypto.Hash (Context, MD5 (MD5), hashFinalize, hashInitWith, hashUpdate)
+import Control.Concurrent (forkIO, newEmptyMVar, putMVar, takeMVar)
+import Control.Monad (when)
+import Crypto.Hash (MD5 (MD5), hashFinalize, hashInitWith, hashUpdate)
+import Data.ByteArray (Bytes)
 import qualified Data.ByteArray as BA
-import qualified Data.ByteString.Char8 as BL
-import Data.List (find)
+import qualified Data.ByteString.Char8 as BS
 import System.Environment (getArgs)
+import System.Exit (exitSuccess)
 
-compute :: Context MD5 -> Int -> BA.Bytes -> Int -> Bool
-compute hash bytes_count zeros i =
-  let num = BL.pack $ show (i :: Int)
-      digest = hashFinalize . hashUpdate hash $ num
-      bytes = BA.take bytes_count $ BA.convert digest :: BA.Bytes
-   in bytes <= zeros
+chunkSize :: Int
+chunkSize = 1000
 
 main :: IO ()
 main = do
   args <- getArgs
+  exitSignal <- newEmptyMVar
 
-  let secret = BL.pack $ head args
+  let secret = BS.pack $ head args
       zeros_count = read $ args !! 1 :: Int
       bytes_count = ceiling $ fromIntegral zeros_count / 2
-      zeros = BA.snoc (BA.replicate (div zeros_count 2) 0 :: BA.Bytes) 0xF
+      zeros = BA.snoc (BA.replicate (div zeros_count 2) 0 :: Bytes) 0xF
       hash = hashUpdate (hashInitWith MD5) secret
 
-  case find (compute hash bytes_count zeros) [1 ..] of
-    Just x -> print x
-    Nothing -> putStrLn "wtf"
+      chunks = [take chunkSize xs | xs <- iterate (drop chunkSize) [1 ..]]
+
+      compute i = do
+        let num = BS.pack $ show (i :: Int)
+            digest = hashFinalize . hashUpdate hash $ num
+            bytes = BA.take bytes_count $ BA.convert digest :: Bytes
+         in ( when (bytes <= zeros) $ do
+                print i
+                putMVar exitSignal ()
+            )
+
+      predicate is = do
+        forkIO $ mapM_ compute is
+
+  _ <- forkIO $ mapM_ predicate chunks
+
+  takeMVar exitSignal
+  exitSuccess
