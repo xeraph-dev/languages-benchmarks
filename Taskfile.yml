@@ -2,7 +2,7 @@ version: "3"
 
 tasks:
   default:
-    deps: [go, rust, swift, zig]
+    deps: [go, haskell, rust, swift, zig]
 
   bench:
     deps: [default]
@@ -15,6 +15,10 @@ tasks:
   go:
     dir: go
     cmds: [task]
+
+  haskell:
+    dir: haskell
+    cmds: [stack build]
 
   rust:
     dir: rust
