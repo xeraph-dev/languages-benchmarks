@@ -2,59 +2,76 @@ package main
 
 import (
 	"crypto/md5"
-	"encoding/binary"
 	"fmt"
+	"os"
 	"runtime"
 	"strconv"
+	"sync"
 )
 
-const compare uint32 = 255
-
-var inputHash = "yzbqklnj"
-
-const MAX_INT = 2_147_483_647 // max int32? i think..
-
-func main() {
-	cores := runtime.NumCPU()
-
-	c := make(chan int, 1)
-	start := 0
-	result := MAX_INT
-
-	for {
-		for i := 0; i < cores; i++ {
-			go iterate(start, start+1000, c)
-			start = start + 1000
+func getStartingZeroesCount(slice []byte) (zeroes int) {
+	for _, value := range slice {
+		if value == 0x00 {
+			zeroes += 2
+			continue
 		}
-		counter := 0
-		for s := range c {
-			if s != -1 && s < result {
-				result = s
-			}
-			counter++
-			if counter == cores {
-				break
-			}
+		if value <= 0x0F {
+			zeroes++
 		}
-		if result != MAX_INT {
-			break
-		}
+		break
 	}
-
-	fmt.Printf("%d", result)
+	return zeroes
 }
 
-func iterate(start int, end int, c chan int) {
-	for i := start; i < end; i++ {
-		h := md5.New()
-		in := inputHash + strconv.Itoa(i)
-		h.Write([]byte(in))
-		b := h.Sum(nil)
-		x := binary.BigEndian.Uint32(b[0:4])
-		if x|compare == compare {
-			c <- i
-			return
+func compute(prefix string, zeroes int) int {
+	var waitGroup sync.WaitGroup
+	workerCount := runtime.NumCPU()
+
+	bytePrefix := []byte(prefix)
+	candidateSolution := -1
+	worker := func(start int, step int) {
+		defer waitGroup.Done()
+		hash := md5.New()
+		for i := start; candidateSolution == -1 || i < candidateSolution; i += step {
+			hash.Write(bytePrefix)
+			hash.Write([]byte(strconv.Itoa(i)))
+			hashSum := hash.Sum(nil)
+			hash.Reset()
+			if getStartingZeroesCount(hashSum) >= zeroes {
+				candidateSolution = i
+				return
+			}
 		}
 	}
-	c <- -1
+
+	waitGroup.Add(workerCount)
+	for i := 0; i < workerCount; i++ {
+		go worker(i, workerCount)
+	}
+	waitGroup.Wait()
+
+	return candidateSolution
+}
+
+func main() {
+	if len(os.Args) != 3 {
+		fmt.Printf("Usage: %v prefix zeroes\n", os.Args[0])
+		os.Exit(1)
+
+	}
+
+	prefix := os.Args[1]
+	zeroes, err := strconv.Atoi(os.Args[2])
+	if err != nil {
+		fmt.Printf("ERROR: '%v' is not an integer\n", os.Args[2])
+		os.Exit(1)
+	}
+
+	if zeroes > 32 || zeroes < 0 {
+		fmt.Printf("ERROR: MD5 hashes can only have 0-32 zeroes\n")
+		os.Exit(1)
+	}
+
+	solution := compute(prefix, zeroes)
+	fmt.Printf("%v\n", solution)
 }

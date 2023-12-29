@@ -2,17 +2,28 @@ version: "3"
 
 tasks:
   default:
-    deps: [go, swift]
+    deps: [go, rust, swift, zig]
 
   bench:
     deps: [default]
-    cmds:
-      - hyperfine --warmup 1 go/build/aoc-year2015-day4 swift/.build/release/aoc-year2015-day4
+    cmds: [./bench.zsh]
+
+  bench:aoc-year2015-day4:
+    deps: [default]
+    cmds: [./bench.zsh aoc-year2015-day4]
 
   go:
     dir: go
     cmds: [task]
 
+  rust:
+    dir: rust
+    cmds: [cargo build --release]
+
   swift:
     dir: swift
     cmds: [swift build -c release]
+
+  zig:
+    dir: zig
+    cmds: [zig build -Doptimize=ReleaseFast]
