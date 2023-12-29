@@ -53,7 +53,7 @@
 
 ### 7 zeros
 
-|| Command | Mean [s] | Min [s] | Max [s] | Relative |
+| Command | Mean [s] | Min [s] | Max [s] | Relative |
 |:---|---:|---:|---:|---:|
 | `bench-go` | 2.565 ± 0.025 | 2.519 | 2.602 | 1.00 |
 | `bench-python` | 24.881 ± 1.511 | 23.551 | 28.918 | 9.70 ± 0.60 |
