@@ -32,6 +32,9 @@ for challenge name in ${(kv)challenges}; do (
   if [ -z "$*" ] || [[ " $* " =~ ' zig ' ]]; then
     langs[zig]="zig/zig-out/bin/$challenge"
   fi
+  if [ -z "$*" ] || [[ " $* " =~ ' javascript ' ]]; then
+    langs[javascript]="bun run javascript/$challenge/main.js"
+  fi
 
   for case in .inputs/$challenge/*; do (
     echo "$name => $(basename $case)"
