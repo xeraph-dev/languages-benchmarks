@@ -1,5 +1,4 @@
 use md5::{Digest, Md5};
-use std::ops::Add;
 use std::sync::atomic::AtomicIsize;
 use std::sync::atomic::Ordering::Relaxed;
 use std::sync::Arc;
@@ -84,17 +83,18 @@ fn iterate(
         0 => zeroes / 2,
         _ => panic!("bad `is_odd` operation"),
     };
+
+    let input = String::from(initial);
+
     for i in (start..).step_by(step) {
         let r = result.load(Relaxed);
         if r >= 0 && r < i {
             return;
         }
 
-        let mut input = String::from(initial);
-        input = input.add(&i.to_string());
-
         let mut hasher = Md5::new();
         hasher.update(input.as_bytes());
+        hasher.update(&i.to_string().as_bytes());
 
         let digest = hasher.finalize();
 
