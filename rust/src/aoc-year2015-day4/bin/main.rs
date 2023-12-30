@@ -1,3 +1,4 @@
+use md5::{Digest, Md5};
 use std::ops::Add;
 use std::sync::atomic::AtomicIsize;
 use std::sync::atomic::Ordering::Relaxed;
@@ -48,9 +49,7 @@ fn main() {
     };
 
     let result: Arc<AtomicIsize> = Arc::new(AtomicIsize::new(-1));
-    // if result.as_ref == 2 {}
 
-    // for _ in 0.. {
     let mut children = Vec::new();
     for i in 0..default_parallelism_approx {
         let share_cmp = cmp.clone();
@@ -86,8 +85,13 @@ fn iterate(
     len: Arc<usize>,
 ) {
     let initial: &str = &key;
+    let len = *(len.as_ref());
+    let cmp = *(cmp.as_ref());
+    let cmp = match cmp {
+        0 => len * 2,
+        _ => len * 2 - 1,
+    };
     for i in (start..).step_by(step) {
-        // TODO condition to exit
         let r = result.load(Relaxed);
         if r >= 0 && r < i {
             return;
@@ -96,23 +100,25 @@ fn iterate(
         let mut input = String::from(initial);
         input = input.add(&i.to_string());
 
-        let digest = md5::compute(input.as_bytes());
+        let mut hasher = Md5::new();
+        hasher.update(input.as_bytes());
 
-        let sliced: &[u8] = &digest.as_slice()[0..*(len.as_ref())];
+        let digest = hasher.finalize();
 
-        if sliced[sliced.len() - 1] > *(cmp.as_ref()) {
-            continue;
-        }
+        let sliced: &[u8] = &digest.as_slice()[0..len];
 
-        let mut is_zeroed = true;
-        for j in (0..sliced.len() - 1).rev() {
-            if sliced[j] != 0 {
-                is_zeroed = false;
-                break;
+        let mut count_zeroes = 0;
+        for j in 0..len {
+            match sliced[j] {
+                0 => count_zeroes += 2,
+                _ => {
+                    if sliced[j] <= 0x0F {
+                        count_zeroes += 1;
+                    }
+                }
             }
         }
-
-        if is_zeroed {
+        if count_zeroes == cmp {
             let r = result.load(Relaxed);
             if r == -1 || r > i {
                 result.store(i, Relaxed)
