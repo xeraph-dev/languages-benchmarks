@@ -1,19 +1,22 @@
 module Main (main) where
 
-import Control.Concurrent (MVar, forkIO, getNumCapabilities, isEmptyMVar, newEmptyMVar, putMVar, swapMVar, takeMVar, tryReadMVar)
+import Control.Concurrent (MVar, forkIO, getNumCapabilities, isEmptyMVar, killThread, modifyMVar_, newEmptyMVar, newMVar, putMVar, swapMVar, takeMVar, tryReadMVar)
 import Control.Monad (void, when)
 import Crypto.Hash (MD5 (MD5), hashFinalize, hashInitWith, hashUpdate)
 import Data.ByteArray (Bytes)
 import qualified Data.ByteArray as BA
 import qualified Data.ByteString.Char8 as BS
+import Data.Map (Map, (!))
+import qualified Data.Map as M
+import GHC.Conc (ThreadId)
 import System.Environment (getArgs)
-import System.Exit (exitSuccess)
 
 main :: IO ()
 main = do
   args <- getArgs
   candidate <- newEmptyMVar :: IO (MVar Int)
   cpuCount <- getNumCapabilities
+  threads <- newMVar M.empty :: IO (MVar (Map Int ThreadId))
 
   let secret = BS.pack $ head args
       zeros_count = read $ args !! 1 :: Int
@@ -33,9 +36,11 @@ main = do
           then putMVar mvar var
           else void $ swapMVar mvar var
 
-      compute i = do
+      compute steps i = do
         founded <- mVarIsLowerThan candidate i
-        when founded exitSuccess
+        when founded $ do
+          threadsVar <- takeMVar threads
+          killThread $ threadsVar ! steps
         let num = BS.pack $ show (i :: Int)
             digest = hashFinalize . hashUpdate hash $ num
             bytes = BA.take bytes_count $ BA.convert digest :: Bytes
@@ -43,7 +48,10 @@ main = do
          in when valid $ updateMVar candidate i
 
       predicate steps = do
-        forkIO . mapM_ compute $ enumFromThenTo steps (steps + cpuCount) maxBound
+        modifyMVar_ threads $ \ts -> do
+          let chunks = enumFromThenTo steps (steps + cpuCount) maxBound
+          threadId <- forkIO $ mapM_ (compute steps) chunks
+          return $ M.insert steps threadId ts
 
   mapM_ predicate [0 .. cpuCount - 1]
 

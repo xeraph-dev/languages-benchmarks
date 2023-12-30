@@ -28,3 +28,4 @@ executables:
       - cryptonite
       - parallel
       - memory
+      - containers
