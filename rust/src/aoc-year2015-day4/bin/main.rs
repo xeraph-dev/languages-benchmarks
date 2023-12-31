@@ -86,14 +86,16 @@ fn iterate(
 
     let input = String::from(initial);
 
+    let mut hasher = Md5::new();
+    hasher.update(input.as_bytes());
+
     for i in (start..).step_by(step) {
         let r = result.load(Relaxed);
         if r >= 0 && r < i {
             return;
         }
 
-        let mut hasher = Md5::new();
-        hasher.update(input.as_bytes());
+        let mut hasher = hasher.clone();
         hasher.update(&i.to_string().as_bytes());
 
         let digest = hasher.finalize();
