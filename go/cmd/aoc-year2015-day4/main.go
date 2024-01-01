@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/md5"
 	"fmt"
+	"math/bits"
 	"os"
 	"runtime"
 	"strconv"
@@ -23,22 +24,41 @@ func getStartingZeroesCount(slice []byte) (zeroes int) {
 	return zeroes
 }
 
-func compute(prefix string, zeroes int) int {
+func uint64ToStrByte(x uint64) []byte {
+	var digits [20]byte
+	var currentDigit uint64
+	var i int
+	for i = 19; x != 0 && i >= 0; i-- {
+		x, currentDigit = bits.Div64(0, x, 10)
+		digits[i] = byte(currentDigit + 0x30)
+	}
+	return digits[i+1:]
+}
+
+func compute(prefix string, zeroes int) uint64 {
 	var waitGroup sync.WaitGroup
+	var writeLock sync.Mutex
 	workerCount := runtime.NumCPU()
 
 	bytePrefix := []byte(prefix)
-	candidateSolution := -1
-	worker := func(start int, step int) {
+	candidateSolution := uint64(0)
+	keepGoing := true
+
+	worker := func(start uint64, step uint64) {
 		defer waitGroup.Done()
 		hash := md5.New()
-		for i := start; candidateSolution == -1 || i < candidateSolution; i += step {
+		for i := uint64(start); keepGoing || i < candidateSolution; i += step {
 			hash.Write(bytePrefix)
-			hash.Write([]byte(strconv.Itoa(i)))
+			hash.Write(uint64ToStrByte(i))
 			hashSum := hash.Sum(nil)
 			hash.Reset()
 			if getStartingZeroesCount(hashSum) >= zeroes {
-				candidateSolution = i
+				writeLock.Lock()
+				if keepGoing || i < candidateSolution {
+					candidateSolution = i
+					keepGoing = false
+				}
+				writeLock.Unlock()
 				return
 			}
 		}
@@ -46,7 +66,7 @@ func compute(prefix string, zeroes int) int {
 
 	waitGroup.Add(workerCount)
 	for i := 0; i < workerCount; i++ {
-		go worker(i, workerCount)
+		go worker(uint64(i), uint64(workerCount))
 	}
 	waitGroup.Wait()
 
