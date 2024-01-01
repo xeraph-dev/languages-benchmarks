@@ -5,7 +5,6 @@
 > - Use all the resources provided by the language and its std, even concurrency and/or multithreading.
 > - FFI is not allowed, use the language itself.
 > - Compute the answer by brute force, don't do divide and conquer, but is allowed to split the algorithm by chunks (useful when threading).
-> - Don't do public the answer, do first the oficial challenge with your inputs, and then change to the inputs provided by this readme.
 
 > [!NOTE]
 > To add another language, create a new folder and branch with the language name. If the name has any symbols like C#, use another name like csharp.
