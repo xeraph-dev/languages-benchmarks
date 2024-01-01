@@ -1,7 +1,7 @@
 const std = @import("std");
 const md5 = std.crypto.hash.Md5;
 
-fn collide(str: []const u8, comptime salt: u32, comptime start: comptime_int, comptime takebit: bool) !void {
+fn collide(str: []const u8, comptime salt: u32, zeros: usize) !void {
     var output: [md5.digest_length]u8 = undefined;
     var buf: [20]u8 = undefined;
     var hashfn = md5.init(.{});
@@ -13,34 +13,68 @@ fn collide(str: []const u8, comptime salt: u32, comptime start: comptime_int, co
         tmphash.update(salty);
         tmphash.final(&output);
 
-        if (computeStartsWithCmp(&output, start, takebit)) {
+        if (computeStartsWithCmp(&output, zeros)) {
             try std.io.getStdOut().writer().print("{any} - {d}\n", .{ std.fmt.fmtSliceHexLower(&output), i });
             break;
         }
     }
 }
 
-inline fn computeStartsWithCmp(str: []const u8, comptime zeroes: usize, takebit: bool) bool {
+fn computeStartsWithCmp(str: []const u8, zeroes: usize) bool {
     var valid: bool = false;
+    var byte_count: usize = 0;
 
-    var zeros: [zeroes - 1]u8 = undefined;
-    @memset(&zeros, 0);
-
-    if (std.mem.startsWith(u8, str[0..zeroes], &zeros)) {
-        valid = true;
-        if (takebit) {
-            switch (str[0..zeroes].*[0 .. str[0..zeroes].len - 1]) {
-                inline 0x1...0x8 => valid = true,
-                inline else => valid = false,
+    switch (zeroes) {
+        5 => {
+            for (str[0..3].*, 0..) |char, i| {
+                if (char == 0x0 and i != 2) {
+                    byte_count += 1;
+                } else if ((char > 0x0 and char <= 0xF) and i == 2) {
+                    byte_count += 1;
+                } else return false;
             }
-        }
+            if (byte_count == 3) valid = true;
+        },
+        6 => {
+            for (str[0..3].*, 0..) |char, i| {
+                _ = i;
+                if (char == 0x0) {
+                    byte_count += 1;
+                } else return false;
+            }
+            if (byte_count == 3) valid = true;
+        },
+        7 => {
+            for (str[0..4].*, 0..) |char, i| {
+                if (char == 0x0 and i != 3) {
+                    byte_count += 1;
+                } else if ((char > 0x0 and char <= 0xF) and i == 3) {
+                    byte_count += 1;
+                } else return false;
+            }
+            if (byte_count == 4) valid = true;
+        },
+        else => unreachable,
     }
-
     return valid;
+}
+
+fn args() ![][:0]u8 {
+    var sand = std.heap.ArenaAllocator.init(std.heap.raw_c_allocator);
+    defer sand.deinit();
+    var args_alloc = try std.process.argsAlloc(sand.allocator());
+    if (args_alloc.len != 3) std.process.exit(1);
+    return args_alloc[1..][0..];
+}
+
+fn parseArgZeroes(comptime T: type, buf: [:0]u8) !T {
+    return std.fmt.parseInt(T, buf, 10) catch unreachable;
 }
 
 pub fn main() !void {
     const salt = std.math.maxInt(u32);
-    @setEvalBranchQuota(salt);
-    try collide("yzbqklnj", salt, 4, false);
+    var args_parsed = try args();
+    const input = args_parsed[0];
+    const number = try parseArgZeroes(usize, args_parsed[1]);
+    try collide(input, salt, number);
 }
