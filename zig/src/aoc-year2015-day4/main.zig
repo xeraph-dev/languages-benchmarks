@@ -59,22 +59,18 @@ fn computeStartsWithCmp(str: []const u8, zeroes: usize) bool {
     return valid;
 }
 
-fn args() ![][:0]u8 {
-    var sand = std.heap.ArenaAllocator.init(std.heap.raw_c_allocator);
-    defer sand.deinit();
-    var args_alloc = try std.process.argsAlloc(sand.allocator());
-    if (args_alloc.len != 3) std.process.exit(1);
-    return args_alloc[1..][0..];
-}
-
-fn parseArgZeroes(comptime T: type, buf: [:0]u8) !T {
+fn parseArgZeroes(comptime T: type, buf: [:0]const u8) !T {
     return std.fmt.parseInt(T, buf, 10) catch unreachable;
 }
 
 pub fn main() !void {
+    var args = try std.process.argsWithAllocator(std.heap.page_allocator);
+    defer args.deinit();
+    _ = args.skip();
+
     const salt = std.math.maxInt(u32);
-    var args_parsed = try args();
-    const input = args_parsed[0];
-    const number = try parseArgZeroes(usize, args_parsed[1]);
+    const input = args.next() orelse unreachable;
+    const zeros = args.next() orelse unreachable;
+    const number = try parseArgZeroes(usize, zeros);
     try collide(input, salt, number);
 }
