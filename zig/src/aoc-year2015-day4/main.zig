@@ -15,7 +15,7 @@ fn collide(str: []const u8, comptime salt: u32, zeros: usize) !void {
         tmphash.final(&output);
 
         if (computeStartsWithCmp(&output, zeros)) {
-            try std.io.getStdOut().writer().print("{any} - {d}\n", .{ std.fmt.fmtSliceHexLower(&output), i });
+            try std.io.getStdOut().writer().print("{d}", .{i});
             break;
         }
     }
