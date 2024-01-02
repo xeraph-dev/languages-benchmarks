@@ -2,12 +2,13 @@ const std = @import("std");
 const md5 = std.crypto.hash.Md5;
 
 fn collide(str: []const u8, comptime salt: u32, zeros: usize) !void {
+    var i: usize = 0;
     var output: [md5.digest_length]u8 = undefined;
     var buf: [20]u8 = undefined;
     var hashfn = md5.init(.{});
     hashfn.update(str);
 
-    for (0..salt) |i| {
+    while (i < salt) : (i += 1) {
         var tmphash = hashfn;
         const salty = try std.fmt.bufPrint(&buf, "{d}", .{i});
         tmphash.update(salty);
@@ -21,42 +22,22 @@ fn collide(str: []const u8, comptime salt: u32, zeros: usize) !void {
 }
 
 fn computeStartsWithCmp(str: []const u8, zeroes: usize) bool {
-    var valid: bool = false;
-    var byte_count: usize = 0;
+    if (zeroes == 0) return true;
+    var zero_count: usize = 0;
 
-    switch (zeroes) {
-        5 => {
-            for (str[0..3].*, 0..) |char, i| {
-                if (char == 0x0 and i != 2) {
-                    byte_count += 1;
-                } else if ((char > 0x0 and char <= 0xF) and i == 2) {
-                    byte_count += 1;
-                } else return false;
-            }
-            if (byte_count == 3) valid = true;
-        },
-        6 => {
-            for (str[0..3].*, 0..) |char, i| {
-                _ = i;
-                if (char == 0x0) {
-                    byte_count += 1;
-                } else return false;
-            }
-            if (byte_count == 3) valid = true;
-        },
-        7 => {
-            for (str[0..4].*, 0..) |char, i| {
-                if (char == 0x0 and i != 3) {
-                    byte_count += 1;
-                } else if ((char > 0x0 and char <= 0xF) and i == 3) {
-                    byte_count += 1;
-                } else return false;
-            }
-            if (byte_count == 4) valid = true;
-        },
-        else => unreachable,
+    for (str) |char| {
+        if (char == 0x0) {
+            zero_count += 2;
+            continue;
+        }
+        if (char <= 0xF) {
+            zero_count += 1;
+        }
+        break;
     }
-    return valid;
+    if (zero_count == zeroes) return true;
+
+    return false;
 }
 
 fn parseArgZeroes(comptime T: type, buf: [:0]const u8) !T {
@@ -64,7 +45,7 @@ fn parseArgZeroes(comptime T: type, buf: [:0]const u8) !T {
 }
 
 pub fn main() !void {
-    var args = try std.process.argsWithAllocator(std.heap.page_allocator);
+    var args = try std.process.argsWithAllocator(std.heap.raw_c_allocator);
     defer args.deinit();
     _ = args.skip();
 
