@@ -1,24 +1,45 @@
 const std = @import("std");
 const md5 = std.crypto.hash.Md5;
 
-fn collide(str: []const u8, comptime salt: u32, zeros: usize) !void {
-    var i: usize = 0;
-    var output: [md5.digest_length]u8 = undefined;
-    var buf: [20]u8 = undefined;
-    var hashfn = md5.init(.{});
-    hashfn.update(str);
+var candidate: ?usize = null;
+var m = std.Thread.Mutex{};
+var wg = std.Thread.WaitGroup{};
 
-    while (i < salt) : (i += 1) {
+fn compute(hashfn: md5, salt: u32, zeros: usize, step: usize, cpuCount: usize) !void {
+    var buf: [20]u8 = undefined;
+    var output: [md5.digest_length]u8 = undefined;
+    var i = step;
+    while (i <= salt) : (i += cpuCount) {
+        if (candidate) |val| if (val <= i) break;
+
         var tmphash = hashfn;
         const salty = try std.fmt.bufPrint(&buf, "{d}", .{i});
         tmphash.update(salty);
         tmphash.final(&output);
 
         if (computeStartsWithCmp(&output, zeros)) {
-            try std.io.getStdOut().writer().print("{d}", .{i});
-            break;
+            m.lock();
+            candidate = i;
+            m.unlock();
         }
     }
+
+    wg.finish();
+}
+
+fn collide(str: []const u8, comptime salt: u32, zeros: usize) !void {
+    var hashfn = md5.init(.{});
+    hashfn.update(str);
+
+    const cpuCount = try std.Thread.getCpuCount();
+
+    for (0..cpuCount) |step| {
+        wg.start();
+        var thread = try std.Thread.spawn(.{}, compute, .{ hashfn, salt, zeros, step, cpuCount });
+        thread.detach();
+    }
+
+    wg.wait();
 }
 
 fn computeStartsWithCmp(str: []const u8, zeroes: usize) bool {
@@ -35,9 +56,7 @@ fn computeStartsWithCmp(str: []const u8, zeroes: usize) bool {
         }
         break;
     }
-    if (zero_count == zeroes) return true;
-
-    return false;
+    return zero_count == zeroes;
 }
 
 fn parseArgZeroes(comptime T: type, buf: [:0]const u8) !T {
@@ -54,4 +73,5 @@ pub fn main() !void {
     const zeros = args.next() orelse unreachable;
     const number = try parseArgZeroes(usize, zeros);
     try collide(input, salt, number);
+    try std.io.getStdOut().writer().print("{d}", .{candidate.?});
 }
