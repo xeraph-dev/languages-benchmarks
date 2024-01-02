@@ -12,12 +12,12 @@ $target .= $half == $bytes_count ? "\x00" : "\x0F";
 
 $hash = md5($secret . 282749, true);
 
-while (true) {
+do {
     $hash = md5($secret . $number, true);
     if (strncmp($hash, $target, $bytes_count) <= 0) {
         break;
     }
     $number++;
-}
+} while (true);
 
 echo $number;
