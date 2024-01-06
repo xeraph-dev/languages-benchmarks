@@ -1,23 +1,23 @@
 import Foundation
 
-let position = UInt(CommandLine.arguments[1])!
-var numbers = CommandLine.arguments[2...].map { UInt($0)! }
+let position = Int(CommandLine.arguments[1])!
+var numbers = CommandLine.arguments[2...].map { Int($0)! }
 
 struct NumberSpoken {
-    var last: UInt
-    var prev: UInt?
+    var last: Int
+    var prev: Int?
 
-    mutating func move(_ turn: UInt) {
+    mutating func move(_ turn: Int) {
         prev = last
         last = turn
     }
 }
 
 var spoken = numbers.last!
-var spokens = [UInt: NumberSpoken]()
+var spokens: [NumberSpoken?] = Array(repeating: nil, count: position)
 
-extension [UInt: NumberSpoken] {
-    mutating func speak(_ turn: UInt, _ val: UInt) {
+extension [NumberSpoken?] {
+    mutating func speak(_ turn: Int, _ val: Int) {
         if self[val] == nil {
             self[val] = .init(last: turn)
         } else {
@@ -28,10 +28,10 @@ extension [UInt: NumberSpoken] {
 }
 
 for (idx, num) in numbers.enumerated() {
-    spokens[num] = NumberSpoken(last: UInt(idx + 1), prev: nil)
+    spokens[num] = .init(last: idx + 1, prev: nil)
 }
 
-for turn in UInt(numbers.count + 1) ... position {
+for turn in numbers.count + 1 ... position {
     if let num = spokens[spoken], let prev = num.prev {
         spokens.speak(turn, num.last - prev)
     } else {
