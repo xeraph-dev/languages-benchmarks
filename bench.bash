@@ -59,7 +59,7 @@ main() {
       mkdir -p ".benchmarks/$challenge"
 
       export -f "${funcs[@]}"
-      hyperfine -w 3 -r 10 -S bash --sort mean-time --export-markdown ".benchmarks/$challenge/$(basename "$case")" "${funcs[@]}"
+      hyperfine -w 3 -r 10 -S bash --sort mean-time --export-markdown ".benchmarks/$challenge/$(basename "$case").md" "${funcs[@]}"
 
       echo
       echo
