@@ -12,6 +12,7 @@ declare -r SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}")"
 declare -r SCRIPT_VERSION="0.0.1"
 declare -r -A CHALLENGES=(
   ['aoc-year2015-day4']='Advent of Code - Year 2015 - Day 4'
+  ['aoc-year2020-day15']='Advent of Code - Year 2020 - Day 15'
 )
 declare -r -a LANGUAGES=(go php python rust swift zig javascript haskell)
 declare -r TIMEOUT=30
