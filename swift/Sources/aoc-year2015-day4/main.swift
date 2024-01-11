@@ -1,4 +1,5 @@
-import CryptoKit
+import Atomics
+import Crypto
 import Foundation
 
 extension Digest {
@@ -29,13 +30,14 @@ let processorCount = ProcessInfo().processorCount
 
 let group = DispatchGroup()
 
-var candidate: UInt32?
+var candidate = ManagedAtomic<UInt32>(0)
 
 for steps in 0 ..< UInt32(processorCount) {
     Task {
         group.enter()
         for i in stride(from: steps, to: UInt32.max, by: processorCount) {
-            guard candidate == nil || i < candidate! else {
+            let candidateValue = candidate.load(ordering: .relaxed)
+            guard candidateValue == 0 || i < candidateValue else {
                 group.leave()
                 return
             }
@@ -43,7 +45,7 @@ for steps in 0 ..< UInt32(processorCount) {
             var hash = hash
             hash.update(data: [UInt8](i.description.utf8))
             if hash.finalize().startingZeros == zeros {
-                candidate = i
+                candidate.store(i, ordering: .relaxed)
             }
         }
     }
@@ -51,4 +53,4 @@ for steps in 0 ..< UInt32(processorCount) {
 
 group.wait()
 
-print(candidate!)
+print(candidate.load(ordering: .relaxed))
