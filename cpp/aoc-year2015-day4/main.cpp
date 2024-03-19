@@ -7,6 +7,8 @@
 
 using namespace std;
 
+constexpr auto MD5_CTX_LEN{sizeof(MD5_CTX)};
+
 class Data {
 public:
   int canBeCandidate(int c) {
@@ -34,8 +36,8 @@ private:
   bool can(int c) { return candidate == 0 || c < candidate; }
 };
 
-void compute(Data *data, int cores, int step, MD5_CTX *md5, int md5_len,
-             int zeros) {
+void compute(Data *data, const int cores, const int step, const MD5_CTX *md5,
+             const int zeros) {
   unsigned char hash[MD5_DIGEST_LENGTH];
   for (int index{step};; index += cores) {
     if (!data->canBeCandidate(index)) {
@@ -45,11 +47,11 @@ void compute(Data *data, int cores, int step, MD5_CTX *md5, int md5_len,
     int zeros_count{};
 
     MD5_CTX copy;
-    memcpy(&copy, md5, md5_len);
+    memcpy(&copy, md5, MD5_CTX_LEN);
 
-    auto buffer = to_string(index);
+    string_view buffer{to_string(index)};
 
-    MD5_Update(&copy, buffer.c_str(), buffer.size());
+    MD5_Update(&copy, buffer.data(), buffer.size());
     MD5_Final(hash, &copy);
 
     for (int i{}; i < MD5_DIGEST_LENGTH; i++) {
@@ -72,22 +74,18 @@ void compute(Data *data, int cores, int step, MD5_CTX *md5, int md5_len,
 int main(int, char *argv[]) {
   auto data = new Data;
 
-  auto secret{argv[1]};
-  auto secret_len{strlen(secret)};
-
+  string_view secret{argv[1]};
   auto zeros{atoi(argv[2])};
-
   auto cores{static_cast<int>(thread::hardware_concurrency())};
 
   MD5_CTX md5;
-  auto md5_len{static_cast<int>(sizeof(md5))};
   MD5_Init(&md5);
-  MD5_Update(&md5, secret, secret_len);
+  MD5_Update(&md5, secret.data(), secret.size());
 
   thread threads[cores];
 
   for (int step{}; step < cores; step++) {
-    threads[step] = thread(compute, data, cores, step, &md5, md5_len, zeros);
+    threads[step] = thread(compute, data, cores, step, &md5, zeros);
   }
 
   for (int step{}; step < cores; step++) {
