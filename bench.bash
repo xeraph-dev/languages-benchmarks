@@ -14,7 +14,7 @@ declare -r -A CHALLENGES=(
   ['aoc-year2015-day4']='Advent of Code - Year 2015 - Day 4'
   ['aoc-year2020-day15']='Advent of Code - Year 2020 - Day 15'
 )
-declare -r -a LANGUAGES=(go php python rust swift zig javascript haskell)
+declare -r -a LANGUAGES=(go php python rust swift zig javascript haskell cpp)
 declare -r TIMEOUT=30
 
 # command-line arguments
@@ -59,7 +59,7 @@ main() {
       mkdir -p ".benchmarks/$challenge"
 
       export -f "${funcs[@]}"
-      hyperfine -w 3 -r 10 -S bash --sort mean-time --export-markdown ".benchmarks/$challenge/$(basename "$case").md" "${funcs[@]}"
+      hyperfine -i -w 3 -r 10 -S bash --sort mean-time --export-markdown ".benchmarks/$challenge/$(basename "$case").md" "${funcs[@]}"
 
       echo
       echo
@@ -107,6 +107,7 @@ define_cmd() {
     [zig]="zig/zig-out/bin/$challenge"
     [javascript]="bun run javascript/$challenge/main.js"
     [haskell]="haskell/.stack-work/dist/aarch64-osx/ghc-9.6.3/build/$challenge/$challenge"
+    [cpp]="cpp/$challenge/main"
   )
 }
 
