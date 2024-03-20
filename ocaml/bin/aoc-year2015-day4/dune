@@ -1,0 +1,4 @@
+(executable
+ (public_name aoc_year2015_day4)
+ (name main)
+ (libraries ocaml))
