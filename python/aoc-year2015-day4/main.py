@@ -2,18 +2,13 @@
 import os
 import sys
 from threading import Thread
-from time import sleep
 import _xxsubinterpreters as interpreters
 import _xxinterpchannels as channels
 
-WORKERS = [interpreters.create() for x in range(os.cpu_count())]
-CHUNK_SIZE = 2**16
-
 worker_payload = """
-# Needs (channel: int, prefix: str, zeroes: int, start: int, end: int):
 from hashlib import md5
 import _xxinterpchannels as channels
-compare_zeroes: str = "0" * zeroes
+compare_zeroes = "0" * zeroes
 prehash = md5(prefix.encode())
 for i in range(start, end):
     hash = prehash.copy()
@@ -21,18 +16,20 @@ for i in range(start, end):
     if hash.hexdigest().startswith(compare_zeroes):
         channels.send(channel, i)
         break
-channels.send(channel, None)
 """
 
 
-def compute(prefix: str, zeroes: int):
+def compute(prefix: str, zeroes: int, workers_count):
+    workers = [interpreters.create() for x in range(workers_count)]
+    batch_size = 2**16
     channel = channels.create()
 
-    start = 0
     solutions = []
 
+    start = 0
     while True:
-        for worker in WORKERS:
+        threads = []
+        for worker in workers:
             worker_arguments = {
                 "script": worker_payload,
                 "id": worker,
@@ -41,25 +38,23 @@ def compute(prefix: str, zeroes: int):
                     "prefix": prefix,
                     "zeroes": zeroes,
                     "start": start,
-                    "end": start + CHUNK_SIZE,
+                    "end": start + batch_size,
                 },
             }
-            Thread(target=interpreters.run_string, kwargs=worker_arguments).start()
-            start += CHUNK_SIZE
+            t = Thread(target=interpreters.run_string, kwargs=worker_arguments)
+            t.start()
+            threads.append(t)
+            start += batch_size
 
-        for worker in WORKERS:
-            while interpreters.is_running(worker):
-                sleep(0.0001)
+        for thread in threads:
+            thread.join()
 
-        for worker in WORKERS:
-            try:
-                possible_solution = channels.recv(channel)
-                if possible_solution != None:
-                    solutions.append(possible_solution)
-            except Exception as e:
-                pass
+        for _ in range(workers_count):
+            if (possible_solution := channels.recv(channel, None)) != None:
+                solutions.append(possible_solution)
 
         if solutions:
+            [interpreters.destroy(worker) for worker in workers]
             return min(solutions)
 
 
@@ -78,5 +73,5 @@ if __name__ == "__main__":
         print("Zeroes should be an integer between 0-32")
         os._exit(1)
 
-    print(compute(prefix=prefix, zeroes=zeroes))
+    print(compute(prefix, zeroes, os.cpu_count()))
     exit(0)

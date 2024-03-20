@@ -1,0 +1,10 @@
+CompileFlags:
+  Add:
+    - -std=gnu++23
+    - -Wall
+    - -Wextra
+    - -I/opt/homebrew/Cellar/openssl@3/3.2.1/include
+    - -L/opt/homebrew/Cellar/openssl@3/3.2.1/lib
+    - -lssl
+    - -lcrypto
+  Compiler: clang++

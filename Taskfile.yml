@@ -2,7 +2,7 @@ version: "3"
 
 tasks:
   default:
-    deps: [go, rust, swift, zig]
+    deps: [go, haskell, rust, swift, zig, cpp]
 
   bench:
     deps: [default]
@@ -16,6 +16,10 @@ tasks:
     dir: go
     cmds: [task]
 
+  haskell:
+    dir: haskell
+    cmds: [stack build]
+
   rust:
     dir: rust
     cmds: [cargo build --release]
@@ -27,3 +31,7 @@ tasks:
   zig:
     dir: zig
     cmds: [zig build -Doptimize=ReleaseFast]
+
+  cpp:
+    dir: cpp
+    cmds: [make -c ./cpp/aoc-year2015-day4/]

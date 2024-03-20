@@ -37,6 +37,7 @@ func uint64ToStrByte(x uint64) []byte {
 
 func compute(prefix string, zeroes int) uint64 {
 	var waitGroup sync.WaitGroup
+	var writeLock sync.Mutex
 	workerCount := runtime.NumCPU()
 
 	bytePrefix := []byte(prefix)
@@ -52,8 +53,12 @@ func compute(prefix string, zeroes int) uint64 {
 			hashSum := hash.Sum(nil)
 			hash.Reset()
 			if getStartingZeroesCount(hashSum) >= zeroes {
-				candidateSolution = i
-				keepGoing = false
+				writeLock.Lock()
+				if keepGoing || i < candidateSolution {
+					candidateSolution = i
+					keepGoing = false
+				}
+				writeLock.Unlock()
 				return
 			}
 		}
