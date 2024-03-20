@@ -1,4 +1,6 @@
 (executable
  (public_name aoc_year2015_day4)
  (name main)
+ (ocamlopt_flags :standard -O3 -noassert -unsafe)
+ (modes native)
  (libraries ocaml))
