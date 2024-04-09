@@ -1,0 +1,60 @@
+[general]
+runs = 2
+warmups = 1
+timeout = 30
+max_timeouts = 3
+
+
+[[developers]]
+username = "xeraph-dev"
+
+[[developers]]
+username = "el-garro"
+
+
+[[languages]]
+name = "go"
+cmd = "build/:challenge-:developer"
+build = "go build -o build/:challenge-:developer cmd/:challenge/:developer/main.go"
+
+[[languages]]
+name = "swift"
+cmd = ".build/release/:challenge-:developer"
+build = "swift build -c release"
+
+
+[[challenges]]
+key = "aoc-year2015-day4"
+name = "Advent of Code - Year 2015 - Day 4"
+[[challenges.levels]]
+name = "5 zeros"
+input = ["yzbqklnj", "5"]
+output = "282749"
+[[challenges.levels]]
+name = "6 zeros"
+input = ["yzbqklnj", "6"]
+output = "9962624"
+[[challenges.levels]]
+name = "7 zeros"
+input = ["yzbqklnj", "7"]
+output = "57551859"
+[[challenges.developers]]
+username = "xeraph-dev"
+languages = ["swift"]
+[[challenges.developers]]
+username = "el-garro"
+languages = ["go"]
+
+[[challenges]]
+key = "aoc-year2020-day15"
+name = "Advent of Code - Year 2020 - Day 15"
+[[challenges.levels]]
+name = "30000000th number spoken"
+input = ["30000000", "2", "0", "1", "9", "5", "19"]
+output = "62714"
+[[challenges.developers]]
+username = "xeraph-dev"
+languages = ["swift"]
+[[challenges.developers]]
+username = "el-garro"
+languages = ["go"]
