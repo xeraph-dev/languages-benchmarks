@@ -13,4 +13,3 @@ class Builder:
 
     def build(self) -> None:
         self.logger.info("Building challenges")
-        pass

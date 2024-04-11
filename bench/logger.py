@@ -15,6 +15,8 @@ class Formatter(logging.Formatter):
                 record.levelname = yellow("WARN")
             case "CRITICAL":
                 record.levelname = red("FATA")
+            case _:
+                pass
 
         record.datetime = magenta(time.strftime(self.default_time_format))
 
