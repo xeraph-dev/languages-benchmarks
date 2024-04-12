@@ -70,6 +70,21 @@ mock_challenges = {
     .withLanguages(["go", "swift"]),
 }
 
+mock_challenge = (
+    Challenge({"key": "challenge-1", "name": "Challenge 1"})
+    .withLevels(
+        [
+            ChallengeLevel(
+                {"name": "secret 2", "input": ["secret-2", "6"], "output": "output-2"}
+            )
+        ]
+    )
+    .withLanguages(["swift"])
+    .withDevelopers(
+        [ChallengeDeveloper({"username": "developer-1", "languages": ["swift"]})]
+    )
+)
+
 
 def load_config() -> Config:
     with tempfile.NamedTemporaryFile(delete_on_close=False) as fp:

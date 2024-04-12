@@ -9,8 +9,9 @@ config = Config(os.path.join(os.getcwd(), "bench.toml"))
 args = ArgParser(config)
 logger = Logger(args.args.verbose)
 args.logger = logger
-print(args.args)
-# challenges = args.check()
+challenges = args.check()
+
+print(challenges)
 
 # Builder(logger, challenges).build()
 

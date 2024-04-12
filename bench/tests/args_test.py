@@ -2,7 +2,8 @@ import sys
 import unittest
 
 from bench.args import ArgParser
-from bench.tests.utils import load_config
+from bench.logger import Logger
+from bench.tests.utils import load_config, mock_challenge
 
 
 class TestArgs(unittest.TestCase):
@@ -125,29 +126,12 @@ class TestArgs(unittest.TestCase):
         self.assertEqual(args.args.languages, ["swift"])
         self.assertEqual(args.args.developers, ["developer-1"])
 
-    # def test_check(self) -> None:
-    #     sys.argv = sys.argv[0:1] + ["challenge-1", "2", "swift"]
-    #     args = ArgParser(load_config())
-    #     args.logger = Logger(args.args.verbose)
-    #     challenges = args.check()
-    #     self.assertEqual(
-    #         challenges,
-    #         [
-    #             Challenge(
-    #                 "challenge-1",
-    #                 "Advent of Code - Year 2015 - Day 4",
-    #                 [
-    #                     Level(
-    #                         "2",
-    #                         "6 zeros",
-    #                         [Language("swift", "swift/.build/release/:challenge")],
-    #                         ["yzbqklnj", "6"],
-    #                         "9962624",
-    #                     )
-    #                 ],
-    #             )
-    #         ],
-    #     )
+    def test_check(self) -> None:
+        sys.argv = sys.argv[0:1] + ["challenge-1", "2", "swift", "developer-1"]
+        args = ArgParser(load_config())
+        args.logger = Logger(args.args.verbose)
+        challenges = args.check()
+        self.assertEqual(challenges, [mock_challenge])
 
 
 if __name__ == "__main__":

@@ -2,8 +2,8 @@ from argparse import Action, ArgumentParser, Namespace
 from logging import Logger
 from typing import Any, Sequence
 
-from bench.colors import green
-from bench.config import Challenge, Config
+from bench.colors import green, red, yellow
+from bench.config import Challenge, ChallengeDeveloper, ChallengeLevel, Config
 
 
 def array_it(obj: Any | list[Any]):
@@ -19,7 +19,8 @@ class SplitArgs(Action):
         option_string: str | None = None,
     ) -> None:
         if isinstance(values, str):
-            return setattr(namespace, self.dest, values.split(","))
+            value_list = list(filter(lambda x: x != "", values.split(",")))
+            return setattr(namespace, self.dest, value_list)
         super.__call__(parser, namespace, values, option_string)
 
 
@@ -254,82 +255,102 @@ class ArgParser:
                             default=0,
                         )
 
+    # region check
     def check(self) -> list[Challenge]:
         self.logger.info("Validating command line arguments")
 
         challenges = list[Challenge]()
 
+        self.check_challenges()
+
+        for challenge in self.config.challenges.values():
+            if challenge.key not in self.args.challenges:
+                continue
+
+            challenges.append(challenge)
+
+            self.check_levels(challenge)
+            self.check_languages(challenge)
+            self.check_developers(challenge)
+
+            self.set_levels(challenge)
+            self.set_languages(challenge)
+            self.set_developers(challenge)
+
         return challenges
 
+    def check_challenges(self) -> None:
+        for challenge in self.args.challenges:
+            if challenge in self.config.challenges.keys():
+                continue
 
-# region check
-# def check(self) -> List[Challenge]:
-#     self.logger.info("Validating command line arguments")
+            challenges_str = ", ".join(map(yellow, self.config.challenges.keys()))
+            self.logger.fatal(
+                f"Invalid challenge, got {red(challenge)}, expect some of [{challenges_str}]"
+            )
+            exit(1)
 
-#     challenges = list[Challenge]()
+    def check_levels(self, challenge: Challenge) -> None:
+        if "levels" not in self.args:
+            return
 
-#     for challenge in self.args.challenges:
-#         challenge_list = list(
-#             map(lambda challenge: challenge.key, self.config.challenges)
-#         )
-#         if challenge not in challenge_list:
-#             challenges_str = ", ".join(map(yellow, challenge_list))
-#             self.logger.fatal(
-#                 f"Invalid challenge, got {red(challenge)}, expect some of [{challenges_str}]"
-#             )
-#             exit(1)
+        for level in self.args.levels:
+            level_list = list(map(str, range(1, len(challenge.levels) + 1)))
+            if level in level_list:
+                continue
 
-#     for challenge in self.config.challenges:
-#         if challenge.key not in self.args.challenges:
-#             continue
+            levels_str = ", ".join(map(yellow, level_list))
+            self.logger.fatal(
+                f"Invalid level, got {red(level)}, expect some of [{levels_str}]"
+            )
+            exit(1)
 
-#         challenges.append(challenge)
+    def check_languages(self, challenge: Challenge) -> None:
+        for language in self.args.languages:
+            if language in challenge.languages:
+                continue
 
-#         if "levels" in self.args:
-#             for level in self.args.levels:
-#                 if level == "":
-#                     continue
+            language_str = ", ".join(map(yellow, self.config.languages.keys()))
+            self.logger.fatal(
+                f"Invalid language, got {red(language)}, expect some of [{language_str}]"
+            )
+            exit(1)
 
-#                 levels = list(map(lambda level: level.level, challenge.levels))
-#                 if level not in levels:
-#                     levels_str = ", ".join(map(yellow, levels))
-#                     self.logger.fatal(
-#                         f"Invalid level, got {red(level)}, expect some of [{levels_str}]"
-#                     )
-#                     exit(1)
+    def check_developers(self, challenge: Challenge) -> None:
+        for developer in self.args.developers:
+            developer_list = list(map(lambda dev: dev.username, challenge.developers))
+            if developer in developer_list:
+                continue
 
-#         levels = list[Level]()
+            developer_str = ", ".join(
+                map(lambda dev: yellow(dev.username), challenge.developers)
+            )
+            self.logger.fatal(
+                f"Invalid developer, got {red(developer)}, expect some of [{developer_str}]"
+            )
+            exit(1)
 
-#         for level in challenge.levels:
-#             if "levels" in self.args and level.level not in self.args.levels:
-#                 continue
+    def set_levels(self, challenge: Challenge):
+        levels = list[ChallengeLevel]()
+        for level in challenge.levels:
+            level_index = str(challenge.levels.index(level) + 1)
+            if "levels" in self.args and level_index not in self.args.levels:
+                continue
+            levels.append(level)
+        challenge.levels = levels
 
-#             levels.append(level)
+    def set_languages(self, challenge: Challenge):
+        languages = list[str]()
+        for language in challenge.languages:
+            if language not in self.args.languages:
+                continue
+            languages.append(language)
+        challenge.languages = languages
 
-#             if "languages" in self.args:
-#                 for language in self.args.languages:
-#                     languages = list(
-#                         map(lambda language: language.name, level.languages)
-#                     )
-#                     if language not in languages:
-#                         languages_str = ", ".join(map(yellow, languages))
-#                         self.logger.fatal(
-#                             f"Invalid language, got {red(language)}, expect some of [{languages_str}]"
-#                         )
-#                         exit(1)
-
-#             languages = list[Language]()
-#             for language in self.config.languages:
-#                 if (
-#                     "languages" in self.args
-#                     and language.name not in self.args.languages
-#                 ):
-#                     continue
-
-#                 languages.append(language)
-
-#             level.languages = languages
-
-#         challenge.levels = levels
-
-#     return challenges
+    def set_developers(self, challenge: Challenge):
+        developers = list[ChallengeDeveloper]()
+        for developer in challenge.developers:
+            if developer.username not in self.args.developers:
+                continue
+            developers.append(developer)
+        challenge.developers = developers
