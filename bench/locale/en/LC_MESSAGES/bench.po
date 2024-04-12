@@ -1,0 +1,39 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+
+msgid "Run languages benchmarks"
+msgstr "Run languages benchmarks"
+
+msgid "increase output verbosity"
+msgstr "increase output verbosity"
+
+msgid "Benchmark chosen challenges"
+msgstr "Benchmark chosen challenges, separated by comma"
+
+msgid "Benchmark chosen developers"
+msgstr "Benchmark chosen developers, separated by comma"
+
+msgid "Benchmark chosen languages"
+msgstr "Benchmark chosen languages, separated by comma"
+
+msgid "Benchmark challenge"
+msgstr "Benchmark challenge %(challenge)s"
+
+msgid "Benchmark chosen levels of challenge"
+msgstr "Benchmark chosen levels of challenge %(challenge)s, separated by comma"
+
+msgid "Benchmark chosen languages of challenge"
+msgstr "Benchmark chosen languages of challenge %(challenge)s, separated by comma"
+
+msgid "Benchmark chosen developers of challenge"
+msgstr "Benchmark chosen developers of challenge %(challenge)s, separated by comma"
+
+msgid "Benchmark level of challenge"
+msgstr "Benchmark level %(level)s of challenge %(challenge)s"
+
+msgid "Benchmark language of challenge"
+msgstr "Benchmark language %(language)s of challenge %(challenge)s"
+
+msgid "Benchmark developer of challenge"
+msgstr "Benchmark developer %(developer)s of challenge %(challenge)s"

@@ -11,7 +11,6 @@ logger = Logger(args.args.verbose)
 args.logger = logger
 challenges = args.check()
 
-print(challenges)
 
 # Builder(logger, challenges).build()
 
