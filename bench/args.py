@@ -388,7 +388,11 @@ def set_developers(challenge: Challenge, logger: Logger, args: Namespace) -> Non
     for developer in challenge.developers:
         if developer.username not in args.developers:
             continue
-        developers.append(developer)
+        for language in developer.languages:
+            if language not in args.languages:
+                continue
+            developers.append(developer)
+            break
     challenge.developers = developers
     developers_str = ", ".join(
         map(lambda developer: yellow(developer.username), developers)

@@ -1,24 +1,41 @@
 import os
+from enum import Enum
+from typing import Callable
 
 from bench.colors import dim, green, red, yellow
+
+
+class ProgressState(Enum):
+    SUCCESS = 0
+    ERROR = 1
+    SKIP = 2
+
+    def color(self) -> Callable[..., str]:
+        match self.name:
+            case "SUCCESS":
+                return green
+            case "SKIP":
+                return yellow
+            case "ERROR":
+                return red
 
 
 class Progress:
     name: str
     count: int
     total: int
-    errors: list[bool]
+    states: list[ProgressState]
     prev_bar: str
 
     def __init__(self, name: str, total: int) -> None:
         self.name = name
         self.count = 0
         self.total = total
-        self.errors = [False for _ in range(total)]
+        self.states = [ProgressState.SUCCESS for _ in range(total)]
         self.prev_bar = ""
 
     def error(self) -> None:
-        self.errors[self.count - 1] = True
+        self.states[self.count - 1] = ProgressState.ERROR
 
     def clear(self) -> None:
         print("\r\033[2K", end="")
@@ -26,7 +43,8 @@ class Progress:
     def bar(self, count: bool = False) -> None:
         self.clear()
 
-        color = red if self.errors[self.count - 1] else green
+        index = self.count if self.count == 0 else self.count - 1
+        color = self.states[index].color()
 
         percentage = f"{yellow(f"{self.count * 100 // self.total}".rjust(3, " "))}%"
         state = f"{yellow(str(self.count))}/{yellow(str(self.total))}"
