@@ -1,19 +1,11 @@
 import os
 
-from bench.args import ArgParser
+from bench.args import parse_args
+from bench.benchmark import benchmark
+from bench.builder import build_challenges
 from bench.config import Config
-from bench.logger import Logger
 
 config = Config(os.path.join(os.getcwd(), "bench.toml"))
-
-args = ArgParser(config)
-logger = Logger(args.args.verbose)
-args.logger = logger
-challenges = args.check()
-
-
-# Builder(logger, challenges).build()
-
-# benchmark = Benchmark(logger, config, challenges)
-# benchmark.run()
-# benchmark.print()
+logger, challenges = parse_args(config)
+build_challenges(logger, config, challenges)
+benchmark(logger, config, challenges)

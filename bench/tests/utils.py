@@ -19,10 +19,20 @@ mock_developers = {
 
 mock_languages = {
     "go": Language(
-        {"name": "go", "cmd": "golang cmd path", "build": "golang build command"}
+        {
+            "name": "go",
+            "cmd": "golang cmd path",
+            "build": "golang build command",
+            "simple_build": False,
+        }
     ),
     "swift": Language(
-        {"name": "swift", "cmd": "swift cmd path", "build": "swift build command"}
+        {
+            "name": "swift",
+            "cmd": "swift cmd path",
+            "build": "swift build command",
+            "simple_build": True,
+        }
     ),
 }
 
@@ -107,11 +117,13 @@ username = "developer-2"
 name = "go"
 cmd = "golang cmd path"
 build = "golang build command"
+simple_build = false
 
 [[languages]]
 name = "swift"
 cmd = "swift cmd path"
 build = "swift build command"
+simple_build = true
 
 
 [[challenges]]

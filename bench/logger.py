@@ -15,6 +15,8 @@ class Formatter(logging.Formatter):
                 record.levelname = yellow("WARN")
             case "CRITICAL":
                 record.levelname = red("FATA")
+            case "ERROR":
+                record.levelname = red("ERRO")
             case _:
                 pass
 
@@ -26,7 +28,7 @@ class Formatter(logging.Formatter):
         return super().format(record)
 
 
-def Logger(verbose: int) -> logging.Logger:
+def create_logger(verbose: int) -> logging.Logger:
     logger = logging.getLogger()
     logger.setLevel(50 - verbose * 10)
     logger.isEnabledFor

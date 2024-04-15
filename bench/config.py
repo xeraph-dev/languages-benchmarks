@@ -32,21 +32,23 @@ class Language:
     name: str
     cmd_path: str
     build: str
+    simple_build: bool
 
     def __init__(self, data: dict[str, Any]) -> None:
         self.name = data["name"]
         self.cmd_path = data["cmd"]
         self.build = data["build"]
+        self.simple_build = data["simple_build"]
 
     def cmd(self, challenge: str, developer: str) -> Path:
         path = self.cmd_path.replace(":challenge", challenge)
         path = path.replace(":developer", developer)
-        return Path(self.name).joinpath(Path(path)).absolute()
+        return Path(path)
 
-    def build_cmd(self, challenge: str, developer: str) -> Path:
-        path = self.build.replace(":challenge", challenge)
-        path = path.replace(":developer", developer)
-        return Path(self.name).joinpath(path).absolute()
+    def build_cmd(self, challenge: str, developer: str) -> list[str]:
+        cmd = self.build.replace(":challenge", challenge)
+        cmd = cmd.replace(":developer", developer)
+        return [cmd.split(" ")[0]] + cmd.split(" ")[1:]
 
 
 @dataclass

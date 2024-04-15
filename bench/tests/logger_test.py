@@ -1,12 +1,12 @@
 import unittest
 from logging.handlers import MemoryHandler
 
-from bench.logger import Logger
+from bench.logger import create_logger
 
 
 class TestLoggerVerbosity(unittest.TestCase):
     def log(self, verbose: int) -> MemoryHandler:
-        logger = Logger(verbose)
+        logger = create_logger(verbose)
         ch = MemoryHandler(1024)
         logger.addHandler(ch)
         logger.debug("test")

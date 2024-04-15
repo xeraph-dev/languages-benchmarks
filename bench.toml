@@ -10,13 +10,15 @@
     username="el-garro"
 
 [[languages]]
-    build="go build -o build/:challenge-:developer cmd/:challenge/:developer/main.go"
-    cmd  ="build/:challenge-:developer"
-    name ="go"
+    build       ="go build -o build/:challenge-:developer cmd/:challenge/:developer/main.go"
+    cmd         ="build/:challenge-:developer"
+    name        ="go"
+    simple_build=false
 [[languages]]
-    build="swift build -c release"
-    cmd  =".build/release/:challenge-:developer"
-    name ="swift"
+    build       ="swift build -c release"
+    cmd         =".build/release/:challenge-:developer"
+    name        ="swift"
+    simple_build=true
 
 [[challenges]]
     key ="aoc-year2015-day4"
@@ -47,8 +49,8 @@
         name  ="30000000th number spoken"
         output="62714"
     [[challenges.developers]]
-        languages=["swift"]
+        languages=[]
         username ="xeraph-dev"
     [[challenges.developers]]
-        languages=["go"]
+        languages=[]
         username ="el-garro"
