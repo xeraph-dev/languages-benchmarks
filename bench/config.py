@@ -1,8 +1,15 @@
+#  Copyright (c) 2024, Xeraph
+#  All rights reserved.
+#
+#  This source code is licensed under the BSD-style license found in the
+#  LICENSE file in the root directory of this source tree.
+
+import tomllib
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-import tomllib
+from .colors import blue, cyan, green, yellow
 
 
 @dataclass
@@ -51,40 +58,77 @@ class Language:
         return [cmd.split(" ")[0]] + cmd.split(" ")[1:]
 
 
+class ChallengeDeveloperName(str):
+    def __format__(self, format_spec: str) -> str:
+        return blue(self)
+
+
 @dataclass
 class ChallengeDeveloper:
-    username: str
+    username: ChallengeDeveloperName
     languages: list[str]
 
     def __init__(self, data: dict[str, Any]) -> None:
-        self.username = data["username"]
+        self.username = ChallengeDeveloperName(data["username"])
         self.languages = data["languages"]
         self.languages.sort()
+
+    def __format__(self, format_spec: str) -> str:
+        return f"{self.username}"
+
+
+class ChallengeLanguageName(str):
+    def __format__(self, format_spec: str) -> str:
+        return cyan(self)
+
+
+@dataclass
+class ChallengeLanguage:
+    name: ChallengeLanguageName
+
+    def __init__(self, name: str) -> None:
+        self.name = ChallengeLanguageName(name)
+
+    def __format__(self, format_spec: str) -> str:
+        return f"{self.name}"
+
+
+class ChallengeLevelName(str):
+    def __format__(self, format_spec: str) -> str:
+        return yellow(self)
 
 
 @dataclass
 class ChallengeLevel:
-    name: str
+    name: ChallengeLevelName
     input: list[str]
     output: str
 
     def __init__(self, data: dict[str, Any]) -> None:
-        self.name = data["name"]
+        self.name = ChallengeLevelName(data["name"])
         self.input = data["input"]
         self.output = data["output"]
+
+    def __format__(self, format_spec: str) -> str:
+        return f"{self.name}"
+
+
+class ChallengeName(str):
+    def __format__(self, format_spec: str) -> str:
+        return green(self)
 
 
 @dataclass
 class Challenge:
-    key: str
-    name: str
+    key: ChallengeName
+    name: ChallengeName
     levels: list[ChallengeLevel]
     developers: list[ChallengeDeveloper]
-    languages: list[str]
+    languages: list[ChallengeLanguage]
 
     def __init__(self, data: dict[str, Any]) -> None:
-        self.key = data["key"]
-        self.name = data["name"]
+        self.key = ChallengeName(data["key"])
+        self.name = ChallengeName(data["name"])
         self.levels = []
         self.developers = []
         self.languages = []
@@ -97,9 +141,13 @@ class Challenge:
         self.developers = developers
         return self
 
-    def withLanguages(self, languages: list[str]):
+    def withLanguages(self, languages: list[ChallengeLanguage]):
         self.languages = languages
         return self
+
+    def __format__(self, format_spec: str) -> str:
+        value = self.name if format_spec == "name" else self.key
+        return f"{value}"
 
 
 class Config:
@@ -137,10 +185,10 @@ class Config:
                 ch.developers.append(ChallengeDeveloper(developer))
                 for language in developer["languages"]:
                     if language not in ch.languages:
-                        ch.languages.append(language)
+                        ch.languages.append(ChallengeLanguage(language))
 
             ch.developers.sort(key=lambda dev: dev.username)
-            ch.languages.sort()
+            ch.languages.sort(key=lambda language: language.name)
 
     def load(self) -> None:
         with open(self.path, mode="rb") as fp:

@@ -1,8 +1,14 @@
+#  Copyright (c) 2024, Xeraph
+#  All rights reserved.
+#
+#  This source code is licensed under the BSD-style license found in the
+#  LICENSE file in the root directory of this source tree.
+
 import os
 from enum import Enum
 from typing import Callable
 
-from bench.colors import dim, green, red, yellow
+from .colors import dim, green, red, yellow
 
 
 class ProgressState(Enum):

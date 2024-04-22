@@ -1,11 +1,23 @@
+#  Copyright (c) 2024, Xeraph
+#  All rights reserved.
+#
+#  This source code is licensed under the BSD-style license found in the
+#  LICENSE file in the root directory of this source tree.
+
 from argparse import Action, ArgumentParser, Namespace
 from logging import Logger
 from typing import Any, Sequence, Tuple
 
-from bench.colors import green, red, yellow
-from bench.config import Challenge, ChallengeDeveloper, ChallengeLevel, Config
-from bench.locales import _
-from bench.logger import create_logger
+from .colors import green, red, yellow
+from .config import (
+    Challenge,
+    ChallengeDeveloper,
+    ChallengeLanguage,
+    ChallengeLevel,
+    Config,
+)
+from .locales import _
+from .logger import create_logger
 
 
 def array_it(obj: Any | list[Any]):
@@ -115,7 +127,7 @@ def setup(parser: ArgumentParser, config: Config) -> None:
             help=challenge_languages_description,
             type=str,
             action=SplitArgs,
-            default=challenge.languages,
+            default=list(map(lambda language: language.name, challenge.languages)),
         )
 
         challenge_parser.add_argument(
@@ -159,7 +171,7 @@ def setup(parser: ArgumentParser, config: Config) -> None:
                 help=challenge_languages_description,
                 type=str,
                 action=SplitArgs,
-                default=challenge.languages,
+                default=list(map(lambda language: language.name, challenge.languages)),
             )
 
             level_parser.add_argument(
@@ -179,12 +191,12 @@ def setup(parser: ArgumentParser, config: Config) -> None:
                 challenge_language_description = _(
                     "Benchmark language of challenge"
                 ) % {
-                    "language": green(language),
+                    "language": green(language.name),
                     "challenge": green(challenge.name),
                 }
 
                 language_parser = level_subparsers.add_parser(
-                    language,
+                    language.name,
                     help=challenge_language_description,
                     description=challenge_language_description,
                 )
@@ -268,8 +280,6 @@ def parse(parser: ArgumentParser) -> Namespace:
 
 # region check
 def check(logger: Logger, config: Config, args: Namespace) -> list[Challenge]:
-    logger.info("Validating command line arguments")
-
     challenges = list[Challenge]()
 
     check_challenges(logger, config, args)
@@ -279,7 +289,7 @@ def check(logger: Logger, config: Config, args: Namespace) -> list[Challenge]:
             continue
 
         challenges.append(challenge)
-        logger.info(f"Included challenge {green(challenge.key)}")
+        logger.info(f"Challenge {challenge} included")
 
         check_levels(challenge, logger, args)
         set_levels(challenge, logger, args)
@@ -294,8 +304,6 @@ def check(logger: Logger, config: Config, args: Namespace) -> list[Challenge]:
 
 
 def check_challenges(logger: Logger, config: Config, args: Namespace) -> None:
-    logger.info("Validating challenges")
-
     for challenge in args.challenges:
         if challenge in config.challenges.keys():
             continue
@@ -308,8 +316,6 @@ def check_challenges(logger: Logger, config: Config, args: Namespace) -> None:
 
 
 def check_levels(challenge: Challenge, logger: Logger, args: Namespace) -> None:
-    logger.info(f"Validating levels of the challenge {green(challenge.key)}")
-
     if "levels" not in args:
         return
 
@@ -326,10 +332,12 @@ def check_levels(challenge: Challenge, logger: Logger, args: Namespace) -> None:
 def check_languages(
     challenge: Challenge, logger: Logger, config: Config, args: Namespace
 ) -> None:
-    logger.info(f"Validating languages of the challenge {green(challenge.key)}")
+    if "levels" not in args:
+        return
 
     for language in args.languages:
-        if not challenge.languages or language in challenge.languages:
+        language_list = list(map(lambda language: language.name, challenge.languages))
+        if not challenge.languages or language in language_list:
             continue
 
         language_str = ", ".join(map(yellow, config.languages.keys()))
@@ -340,7 +348,8 @@ def check_languages(
 
 
 def check_developers(challenge: Challenge, logger: Logger, args: Namespace) -> None:
-    logger.info(f"Validating developers of the challenge {green(challenge.key)}")
+    if "levels" not in args:
+        return
 
     for developer in args.developers:
         developer_list = list(map(lambda dev: dev.username, challenge.developers))
@@ -364,23 +373,19 @@ def set_levels(challenge: Challenge, logger: Logger, args: Namespace) -> None:
             continue
         levels.append(level)
     challenge.levels = levels
-    levels_str = ", ".join(map(lambda level: yellow(level.name), levels))
-    logger.info(
-        f"Included levels [{levels_str}] in the challenge {green(challenge.key)}"
-    )
+    levels_str = ", ".join(map(format, levels))
+    logger.info(f"Challenge {challenge}'s levels [{levels_str}] included")
 
 
 def set_languages(challenge: Challenge, logger: Logger, args: Namespace) -> None:
-    languages = list[str]()
+    languages = list[ChallengeLanguage]()
     for language in challenge.languages:
-        if language not in args.languages:
+        if language.name not in args.languages:
             continue
         languages.append(language)
     challenge.languages = languages
-    languages_str = ", ".join(map(yellow, languages))
-    logger.info(
-        f"Included languages [{languages_str}] in the challenge {green(challenge.key)}"
-    )
+    languages_str = ", ".join(map(format, languages))
+    logger.info(f"Challenge {challenge}'s languages [{languages_str}] included")
 
 
 def set_developers(challenge: Challenge, logger: Logger, args: Namespace) -> None:
@@ -394,12 +399,8 @@ def set_developers(challenge: Challenge, logger: Logger, args: Namespace) -> Non
             developers.append(developer)
             break
     challenge.developers = developers
-    developers_str = ", ".join(
-        map(lambda developer: yellow(developer.username), developers)
-    )
-    logger.info(
-        f"Included developers [{developers_str}] in the challenge {green(challenge.key)}"
-    )
+    developers_str = ", ".join(map(format, developers))
+    logger.info(f"Challenge {challenge}'s developers [{developers_str}] included")
 
 
 def parse_args(config: Config) -> Tuple[Logger, list[Challenge]]:

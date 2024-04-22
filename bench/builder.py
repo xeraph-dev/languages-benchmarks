@@ -1,11 +1,17 @@
+#  Copyright (c) 2024, Xeraph
+#  All rights reserved.
+#
+#  This source code is licensed under the BSD-style license found in the
+#  LICENSE file in the root directory of this source tree.
+
 import os
 import subprocess
 from logging import Logger
 from pathlib import Path
 
-from bench.colors import green, yellow
-from bench.config import Challenge, Config
-from bench.progress import Progress
+from .colors import green, yellow
+from .config import Challenge, ChallengeLanguage, Config
+from .progress import Progress
 
 
 def execute(cmd: list[str], cwd: Path) -> bool:
@@ -21,6 +27,8 @@ def execute(cmd: list[str], cwd: Path) -> bool:
 def build_challenges(
     logger: Logger, config: Config, challenges: list[Challenge]
 ) -> None:
+    max_language_len = max(map(len, config.languages))
+
     total_progress = 0
     for challenge in challenges:
         languages_added = set[str]()
@@ -35,8 +43,6 @@ def build_challenges(
                 languages_added.add(language.name)
     progress = Progress("Building", total_progress)
 
-    logger.info("Building challenges")
-
     for challenge in challenges:
         languages = set[str]()
         languages_built = set[str]()
@@ -44,12 +50,13 @@ def build_challenges(
             developer_languages_built = set[str]()
             for language in developer.languages:
                 language = config.languages[language]
+                challenge_language = ChallengeLanguage(
+                    language.name.ljust(max_language_len)
+                )
                 cwd = Path(os.getcwd()).joinpath(language.name)
 
                 if language.simple_build and language.name not in languages_built:
-                    logger.info(
-                        f"Building {yellow(language.name)} for challenge {green(challenge.key)}"
-                    )
+                    logger.info(f"Building {challenge} - {challenge_language}")
                     cmd = language.build_cmd(challenge.key, "")
                     progress.bar()
                     if execute(cmd, cwd):
@@ -62,7 +69,7 @@ def build_challenges(
                         progress.error()
                 elif not language.simple_build:
                     logger.info(
-                        f"Building {yellow(language.name)} by developer {yellow(developer.username)} for challenge {green(challenge.key)}"
+                        f"Building {challenge} - {challenge_language} by {developer}"
                     )
                     cmd = language.build_cmd(challenge.key, developer.username)
                     progress.bar()
@@ -81,7 +88,4 @@ def build_challenges(
             developer.languages = list(developer_languages_built)
             languages = languages.union(developer_languages_built)
 
-        challenge.languages = list(languages)
-        sorted(challenge.languages)
-
-    logger.info("Built challenges")
+        challenge.languages.sort(key=lambda language: language.name)

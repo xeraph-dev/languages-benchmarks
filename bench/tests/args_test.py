@@ -1,9 +1,15 @@
+#  Copyright (c) 2024, Xeraph
+#  All rights reserved.
+#
+#  This source code is licensed under the BSD-style license found in the
+#  LICENSE file in the root directory of this source tree.
+
 import sys
 import unittest
 from argparse import ArgumentParser, Namespace
 
-from bench.args import parse, parse_args, setup
-from bench.tests.utils import load_config, mock_challenge
+from ..args import parse, parse_args, setup
+from ..tests.utils import load_config, mock_challenge
 
 
 def just_parse() -> Namespace:

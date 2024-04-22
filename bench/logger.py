@@ -1,7 +1,13 @@
+#  Copyright (c) 2024, Xeraph
+#  All rights reserved.
+#
+#  This source code is licensed under the BSD-style license found in the
+#  LICENSE file in the root directory of this source tree.
+
 import logging
 import time
 
-from bench.colors import blue, green, magenta, red, yellow
+from .colors import blue, green, magenta, red, yellow
 
 
 class Formatter(logging.Formatter):
@@ -33,7 +39,7 @@ def create_logger(verbose: int) -> logging.Logger:
     logger.setLevel(50 - verbose * 10)
     logger.isEnabledFor
     formatter = Formatter(
-        "%(datetime)s - %(filename)s:%(lineno)s - %(levelname)s - %(message)s"
+            "%(datetime)s - %(filename)s:%(lineno)s - %(levelname)s - %(message)s"
     )
     ch = logging.StreamHandler()
     ch.setFormatter(formatter)

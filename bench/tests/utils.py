@@ -1,8 +1,15 @@
+#  Copyright (c) 2024, Xeraph
+#  All rights reserved.
+#
+#  This source code is licensed under the BSD-style license found in the
+#  LICENSE file in the root directory of this source tree.
+
 import tempfile
 
-from bench.config import (
+from ..config import (
     Challenge,
     ChallengeDeveloper,
+    ChallengeLanguage,
     ChallengeLevel,
     Config,
     Developer,
@@ -57,7 +64,7 @@ mock_challenges = {
             ChallengeDeveloper({"username": "developer-2", "languages": ["go"]}),
         ]
     )
-    .withLanguages(["go", "swift"]),
+    .withLanguages([ChallengeLanguage("go"), ChallengeLanguage("swift")]),
     "challenge-2": Challenge(
         {
             "key": "challenge-2",
@@ -77,7 +84,7 @@ mock_challenges = {
             ChallengeDeveloper({"username": "developer-2", "languages": ["go"]}),
         ]
     )
-    .withLanguages(["go", "swift"]),
+    .withLanguages([ChallengeLanguage("go"), ChallengeLanguage("swift")]),
 }
 
 mock_challenge = (
@@ -89,7 +96,7 @@ mock_challenge = (
             )
         ]
     )
-    .withLanguages(["swift"])
+    .withLanguages([ChallengeLanguage("swift")])
     .withDevelopers(
         [ChallengeDeveloper({"username": "developer-1", "languages": ["swift"]})]
     )
@@ -98,7 +105,8 @@ mock_challenge = (
 
 def load_config() -> Config:
     with tempfile.NamedTemporaryFile(delete_on_close=False) as fp:
-        fp.write(b"""
+        fp.write(
+            b"""
 [general]
 runs = 2
 warmups = 1
@@ -161,6 +169,7 @@ languages = ["swift"]
 [[challenges.developers]]
 username = "developer-2"
 languages = ["go"]
-""")
+"""
+        )
         fp.close()
         return Config(fp.name)

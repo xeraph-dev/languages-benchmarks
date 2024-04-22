@@ -1,3 +1,9 @@
+#  Copyright (c) 2024, Xeraph
+#  All rights reserved.
+#
+#  This source code is licensed under the BSD-style license found in the
+#  LICENSE file in the root directory of this source tree.
+
 import os
 import subprocess
 import time
@@ -5,9 +11,18 @@ from dataclasses import dataclass
 from logging import Logger
 from pathlib import Path
 
-from bench.colors import yellow
-from bench.config import Challenge, ChallengeDeveloper, ChallengeLevel, Config, Language
-from bench.progress import Progress
+from .config import (
+    Challenge,
+    ChallengeDeveloper,
+    ChallengeDeveloperName,
+    ChallengeLanguage,
+    ChallengeLanguageName,
+    ChallengeLevel,
+    ChallengeLevelName,
+    ChallengeName,
+    Config,
+)
+from .progress import Progress
 
 
 @dataclass
@@ -17,10 +32,10 @@ class BenchmarkMeasure:
 
 @dataclass
 class BenchmarkStats:
-    challenge: str
-    level: str
-    language: str
-    developer: str
+    challenge: ChallengeName
+    level: ChallengeLevelName
+    language: ChallengeLanguageName
+    developer: ChallengeDeveloperName
     measures: list[BenchmarkMeasure]
     successes: int
     fails: int
@@ -31,10 +46,10 @@ class BenchmarkStats:
         self,
         challenge: Challenge,
         level: ChallengeLevel,
-        language: Language,
+        language: ChallengeLanguage,
         developer: ChallengeDeveloper,
     ) -> None:
-        self.challenge = challenge.name
+        self.challenge = challenge.key
         self.level = level.name
         self.language = language.name
         self.developer = developer.username
@@ -50,29 +65,37 @@ class BenchmarkStats:
 def benchmark(
     logger: Logger, config: Config, challenges: list[Challenge]
 ) -> list[BenchmarkStats]:
+    max_language_len = max(map(len, config.languages))
     stats = list[BenchmarkStats]()
 
     total_progress = 0
     for challenge in challenges:
         for _ in challenge.levels:
             for developer in challenge.developers:
-                for language in developer.languages:
+                for _ in developer.languages:
                     total_progress += 1
     total_progress *= config.general.warmups + config.general.runs
     progress = Progress("Benchmarking", total_progress)
 
-    logger.info("Benchmarking challenges")
     for challenge in challenges:
         for level in challenge.levels:
             for developer in challenge.developers:
-                for language in developer.languages:
-                    language = config.languages[language]
-
-                    logger.info(
-                        f"Benchmarking {yellow(language.name)} by developer {developer.username}, level {level.name} of challenge {challenge.key}"
+                for language_str in developer.languages:
+                    language = config.languages[language_str]
+                    challenge_language = ChallengeLanguage(
+                        language.name.ljust(max_language_len)
                     )
 
-                    stat = BenchmarkStats(challenge, level, language, developer)
+                    logger.info(
+                        f"Benchmarking {challenge} - {level} - {challenge_language} by {developer}"
+                    )
+
+                    stat = BenchmarkStats(
+                        challenge,
+                        level,
+                        ChallengeLanguage(language.name),
+                        developer,
+                    )
                     stats.append(stat)
 
                     cwd = Path(os.getcwd()).joinpath(language.name)

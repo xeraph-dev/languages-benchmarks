@@ -1,8 +1,8 @@
 [general]
     max_timeouts=3
-    runs        =2
+    runs        =5
     timeout     =30
-    warmups     =1
+    warmups     =2
 
 [[developers]]
     username="xeraph-dev"
@@ -59,8 +59,8 @@
         name  ="30000000th number spoken"
         output="62714"
     [[challenges.developers]]
-        languages=[]
+        languages=["swift"]
         username ="xeraph-dev"
     [[challenges.developers]]
-        languages=[]
+        languages=["go"]
         username ="el-garro"
