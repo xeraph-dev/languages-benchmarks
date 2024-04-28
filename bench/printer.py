@@ -13,3 +13,4 @@ def print_measures(measures: dict[str, ChallengeMeasure]) -> None:
         if challenge is not challenges[0]:
             print()
         print(f"\n{challenge}")
+    print()

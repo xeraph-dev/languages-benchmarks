@@ -37,9 +37,8 @@ class Formatter(logging.Formatter):
 def create_logger(verbose: int) -> logging.Logger:
     logger = logging.getLogger()
     logger.setLevel(50 - verbose * 10)
-    logger.isEnabledFor
     formatter = Formatter(
-            "%(datetime)s - %(filename)s:%(lineno)s - %(levelname)s - %(message)s"
+        "%(datetime)s - %(filename)s:%(lineno)s - %(levelname)s - %(message)s"
     )
     ch = logging.StreamHandler()
     ch.setFormatter(formatter)

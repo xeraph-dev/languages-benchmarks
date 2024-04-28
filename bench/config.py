@@ -184,11 +184,12 @@ class Config:
             for developer in challenge["developers"]:
                 ch.developers.append(ChallengeDeveloper(developer))
                 for language in developer["languages"]:
-                    if language not in ch.languages:
-                        ch.languages.append(ChallengeLanguage(language))
+                    challenge_language = ChallengeLanguage(language)
+                    if challenge_language not in ch.languages:
+                        ch.languages.append(challenge_language)
 
             ch.developers.sort(key=lambda dev: dev.username)
-            ch.languages.sort(key=lambda language: language.name)
+            ch.languages.sort(key=lambda lang: lang.name)
 
     def load(self) -> None:
         with open(self.path, mode="rb") as fp:

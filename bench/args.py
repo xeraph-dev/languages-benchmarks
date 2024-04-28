@@ -16,7 +16,6 @@ from .config import (
     ChallengeLevel,
     Config,
 )
-from .locales import _
 from .logger import create_logger
 
 
@@ -40,10 +39,10 @@ class SplitArgs(Action):
 
 # region setup
 def setup(parser: ArgumentParser, config: Config) -> None:
-    verbose_description = _("increase output verbosity")
-    challenges_description = _("Benchmark chosen challenges")
-    developers_description = _("Benchmark chosen developers")
-    languages_description = _("Benchmark chosen languages")
+    verbose_description = "increase output verbosity"
+    challenges_description = "Benchmark chosen challenges"
+    developers_description = "Benchmark chosen developers"
+    languages_description = "Benchmark chosen languages"
 
     parser.add_argument(
         "-v",
@@ -83,19 +82,10 @@ def setup(parser: ArgumentParser, config: Config) -> None:
 
     subparsers = parser.add_subparsers(title="challenges", dest="challenges")
     for challenge in config.challenges.values():
-        # challenge_description = f"Benchmark challenge {green(challenge.name)}"
-        challenge_description = _("Benchmark challenge") % {
-            "challenge": green(challenge.name)
-        }
-        challenge_developers_description = _(
-            "Benchmark chosen developers of challenge"
-        ) % {"challenge": green(challenge.name)}
-        challenge_levels_description = _("Benchmark chosen levels of challenge") % {
-            "challenge": green(challenge.name)
-        }
-        challenge_languages_description = _(
-            "Benchmark chosen languages of challenge"
-        ) % {"challenge": green(challenge.name)}
+        challenge_description = f"Benchmark challenge {green(challenge.name)}"
+        challenge_developers_description = f"Benchmark chosen developers of challenge {green(challenge.name)}, separated by comma"
+        challenge_levels_description = f"Benchmark chosen levels of challenge {green(challenge.name)}, separated by comma"
+        challenge_languages_description = f"Benchmark chosen languages of challenge {green(challenge.name)}, separated by comma"
 
         challenge_parser = subparsers.add_parser(
             challenge.key,
@@ -145,10 +135,7 @@ def setup(parser: ArgumentParser, config: Config) -> None:
         for level_index, level in zip(
             range(1, len(challenge.levels) + 1), challenge.levels
         ):
-            challenge_level_description = _("Benchmark level of challenge") % {
-                "level": green(level.name),
-                "challenge": green(challenge.name),
-            }
+            challenge_level_description = f"Benchmark level {green(level.name)} of challenge {green(challenge.name)}"
 
             level_parser = challenge_subparsers.add_parser(
                 str(level_index),
@@ -188,12 +175,7 @@ def setup(parser: ArgumentParser, config: Config) -> None:
             )
 
             for language in challenge.languages:
-                challenge_language_description = _(
-                    "Benchmark language of challenge"
-                ) % {
-                    "language": green(language.name),
-                    "challenge": green(challenge.name),
-                }
+                challenge_language_description = f"Benchmark language {green(language.name)} of challenge {green(challenge.name)}"
 
                 language_parser = level_subparsers.add_parser(
                     language.name,
@@ -224,12 +206,7 @@ def setup(parser: ArgumentParser, config: Config) -> None:
                 )
 
                 for developer in challenge.developers:
-                    challenge_developer_description = _(
-                        "Benchmark developer of challenge"
-                    ) % {
-                        "developer": green(developer.username),
-                        "challenge": green(challenge.name),
-                    }
+                    challenge_developer_description = f"Benchmark developer {green(developer.username)} of challenge {green(challenge.name)}"
 
                     developer_parser = language_subparsers.add_parser(
                         developer.username,
@@ -404,7 +381,7 @@ def set_developers(challenge: Challenge, logger: Logger, args: Namespace) -> Non
 
 
 def parse_args(config: Config) -> Tuple[Logger, list[Challenge]]:
-    parser = ArgumentParser(prog="bench", description=_("Run languages benchmarks"))
+    parser = ArgumentParser(prog="bench", description="Run languages benchmarks")
     setup(parser, config)
     args = parse(parser)
     logger = create_logger(args.verbose)

@@ -166,8 +166,8 @@ class MeasureStat:
         data_line = data_line.ljust(line_len)
 
         return f"""\
-\t\t{language_space}{self.language} by {self.developer}{developer_space} - {green("mean")} ± {green("σ")}\t{self.mean} ± {self.stdev}
-\t\t{dim(data_line)} {magenta("min")} … {magenta("max")}\t{self.min} … {self.max}\
+    {language_space}{self.language} by {self.developer}{developer_space} - {green("mean")} ± {green("σ")}    {self.mean} ± {self.stdev}
+    {dim(data_line)} {magenta("min")} … {magenta("max")}  {self.min} … {self.max}\
 """
 
 
@@ -181,10 +181,10 @@ class ChallengeLevelSummary:
 
     def __format__(self, format_spec: str) -> str:
         if format_spec == "faster":
-            return f"\t\t\t{self.language} by {self.developer} ran"
+            return f"      {self.language} by {self.developer} ran"
 
         language_space = " " * (self.max_language_len - len(self.language))
-        return f"""\t\t\t{yellow(f"{self.mean: >5.1f}")} ± {yellow(f"{self.stdev: >4.1f}")} times faster than {language_space}{self.language} by {self.developer}"""
+        return f"""      {yellow(f"{self.mean: >5.1f}")} ± {yellow(f"{self.stdev: >4.1f}")} times faster than {language_space}{self.language} by {self.developer}"""
 
 
 @dataclass
@@ -201,7 +201,7 @@ class ChallengeLevelMeasure:
     def __format__(self, format_spec: str) -> str:
         return (
             f"{self.name}\n"
-            + "\n\n".join([f"{stat}" for stat in self.stats] + ["\t\tSummary\n"])
+            + "\n\n".join([f"{stat}" for stat in self.stats] + ["    Summary\n"])
             + "\n".join(
                 [
                     f"{summary:faster}" if summary is self.summary[0] else f"{summary}"
@@ -225,7 +225,7 @@ class ChallengeMeasure:
 
     def __format__(self, format_spec: str) -> str:
         return f"{self.name}\n" + "\n\n".join(
-            [f"\t{level}" for level in self.levels.values()]
+            [f"  {level}" for level in self.levels.values()]
         )
 
 

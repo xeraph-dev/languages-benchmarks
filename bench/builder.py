@@ -9,8 +9,7 @@ import subprocess
 from logging import Logger
 from pathlib import Path
 
-from .colors import green, yellow
-from .config import Challenge, ChallengeLanguage, Config
+from .config import Challenge, Config
 from .progress import Progress
 
 
@@ -27,65 +26,86 @@ def execute(cmd: list[str], cwd: Path) -> bool:
 def build_challenges(
     logger: Logger, config: Config, challenges: list[Challenge]
 ) -> None:
-    max_language_len = max(map(len, config.languages))
 
-    total_progress = 0
-    for challenge in challenges:
-        languages_added = set[str]()
-        for developer in challenge.developers:
-            for language in developer.languages:
-                language = config.languages[language]
-                if language.simple_build and language.name not in languages_added:
-                    total_progress += 1
-                elif not language.simple_build:
-                    total_progress += 1
+    total_progress = sum(
+        [
+            1
+            for challenge in challenges
+            for developer in challenge.developers
+            for language in developer.languages
+            if not config.languages[language].simple_build
+        ]
+    )
 
-                languages_added.add(language.name)
+    simple_build_languages = []
+    [
+        simple_build_languages.append(language)
+        for challenge in challenges
+        for language in challenge.languages
+        if config.languages[language.name].simple_build
+        and language not in simple_build_languages
+    ]
+    simple_build_languages.sort(key=lambda lang: lang.name)
+    total_progress += len(simple_build_languages)
+
     progress = Progress("Building", total_progress)
 
-    for challenge in challenges:
-        languages = set[str]()
-        languages_built = set[str]()
-        for developer in challenge.developers:
-            developer_languages_built = set[str]()
-            for language in developer.languages:
-                language = config.languages[language]
-                challenge_language = ChallengeLanguage(
-                    language.name.ljust(max_language_len)
-                )
-                cwd = Path(os.getcwd()).joinpath(language.name)
+    for language in simple_build_languages:
+        challenges_included = []
+        [
+            challenges_included.append(f"{challenge.key}")
+            for challenge in challenges
+            if language in challenge.languages
+        ]
+        challenges_included.sort()
 
-                if language.simple_build and language.name not in languages_built:
-                    logger.info(f"Building {challenge} - {challenge_language}")
-                    cmd = language.build_cmd(challenge.key, "")
-                    progress.bar()
-                    if execute(cmd, cwd):
-                        developer_languages_built.add(language.name)
-                    else:
-                        progress.clear()
-                        logger.error(
-                            f"Failed building {yellow(language.name)} for challenge {green(challenge.key)}"
-                        )
-                        progress.error()
-                elif not language.simple_build:
-                    logger.info(
-                        f"Building {challenge} - {challenge_language} by {developer}"
-                    )
-                    cmd = language.build_cmd(challenge.key, developer.username)
-                    progress.bar()
-                    if execute(cmd, cwd):
-                        developer_languages_built.add(language.name)
-                    else:
-                        progress.clear()
-                        logger.error(
-                            f"Failed building {yellow(language.name)} by developer {yellow(developer.username)} for challenge {green(challenge.key)}"
-                        )
-                        progress.error()
+        developers_included = []
+        [
+            developers_included.append(f"{developer.username}")
+            for challenge in challenges
+            for developer in challenge.developers
+            if language.name in developer.languages
+            and f"{developer.username}" not in developers_included
+        ]
+        developers_included.sort()
 
-                languages_built.add(language.name)
+        challenges_str = ", ".join(challenges_included)
+        developers_str = ", ".join(developers_included)
+        logger.info(
+            f"Building [{challenges_str}] - {language.name} by [{developers_str}]"
+        )
+        with progress:
+            cmd = config.languages[language.name].build_cmd("", "")
+            cwd = Path(os.getcwd()).joinpath(language.name)
+            if not execute(cmd, cwd):
                 progress.clear()
+                logger.error(
+                    f"Build [{challenges_str}] - {language.name} by [{developers_str}] failed"
+                )
 
-            developer.languages = list(developer_languages_built)
-            languages = languages.union(developer_languages_built)
+    for challenge in challenges:
+        languages = [
+            language
+            for language in challenge.languages
+            if not config.languages[language.name].simple_build
+        ]
 
-        challenge.languages.sort(key=lambda language: language.name)
+        for language in languages:
+            developers = [
+                developer
+                for developer in challenge.developers
+                if language.name in developer.languages
+            ]
+
+            for developer in developers:
+                logger.info(f"Building {challenge} - {language} by {developer}")
+                with progress:
+                    cmd = config.languages[language.name].build_cmd(
+                        challenge.key, developer.username
+                    )
+                    cwd = Path(os.getcwd()).joinpath(language.name)
+                    if not execute(cmd, cwd):
+                        progress.clear()
+                        logger.error(
+                            f"Build {challenge} - {language} by {developer} failed"
+                        )

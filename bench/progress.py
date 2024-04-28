@@ -47,8 +47,6 @@ class Progress:
         print("\r\033[2K", end="")
 
     def bar(self, count: bool = False) -> None:
-        self.clear()
-
         index = self.count if self.count == 0 else self.count - 1
         color = self.states[index].color()
 
@@ -72,3 +70,9 @@ class Progress:
         print(f"  {self.name} {state} {bar_str} {percentage}", end="\r")
 
         self.count += 0 if count else 1
+
+    def __enter__(self):
+        self.bar()
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.clear()
