@@ -4,6 +4,7 @@
 #  This source code is licensed under the BSD-style license found in the
 #  LICENSE file in the root directory of this source tree.
 
+import os
 import tomllib
 from dataclasses import dataclass
 from pathlib import Path
@@ -158,8 +159,8 @@ class Config:
     challenges: dict[str, Challenge]
     data: dict[str, Any]
 
-    def __init__(self, path: str) -> None:
-        self.path = path
+    def __init__(self) -> None:
+        self.path = os.path.join(os.getcwd(), "bench.toml")
 
         self.load()
 

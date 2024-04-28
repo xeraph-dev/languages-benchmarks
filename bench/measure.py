@@ -177,14 +177,12 @@ class ChallengeLevelSummary:
     stdev: float
     developer: ChallengeDeveloperName
     language: ChallengeLanguageName
-    max_language_len: int
 
     def __format__(self, format_spec: str) -> str:
         if format_spec == "faster":
             return f"      {self.language} by {self.developer} ran"
 
-        language_space = " " * (self.max_language_len - len(self.language))
-        return f"""      {yellow(f"{self.mean: >5.1f}")} ± {yellow(f"{self.stdev: >4.1f}")} times faster than {language_space}{self.language} by {self.developer}"""
+        return f"""      {yellow(f"{self.mean: >5.1f}")} ± {yellow(f"{self.stdev: >4.1f}")} times faster than {self.language} by {self.developer}"""
 
 
 @dataclass
@@ -268,15 +266,13 @@ def measure(config: Config, stats: list[BenchmarkStats]) -> dict[str, ChallengeM
 
     for challenge in measures:
         for level in measures[challenge].levels:
-            sorted_stats = sorted(
-                measures[challenge].levels[level].stats, key=lambda stat: stat.mean.base
+            filtered_stats = filter(
+                lambda stat: stat.fails + stat.timeouts + stat.skips == 0,
+                measures[challenge].levels[level].stats,
             )
+            sorted_stats = sorted(filtered_stats, key=lambda stat: stat.mean.base)
 
             for stat in sorted_stats:
-                total = stat.successes + stat.fails + stat.timeouts + stat.skips
-                if total != stat.successes:
-                    continue
-
                 summary_mean = (
                     stat.mean.base
                     if stat is sorted_stats[0]
@@ -301,7 +297,6 @@ def measure(config: Config, stats: list[BenchmarkStats]) -> dict[str, ChallengeM
                         abs(max_ratio - min_ratio),
                         stat.developer,
                         stat.language,
-                        stat.max_language_len,
                     )
                 )
 
