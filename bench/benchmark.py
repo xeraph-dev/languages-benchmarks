@@ -130,6 +130,11 @@ def compute(
                     continue
                 stat.timeouts += 1
                 progress.error()
+            except OSError:
+                if i < config.general.warmups:
+                    continue
+                stat.fails += 1
+                progress.error()
 
 
 def benchmark(

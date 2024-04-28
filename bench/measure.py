@@ -234,7 +234,7 @@ def measure(config: Config, stats: list[BenchmarkStats]) -> dict[str, ChallengeM
     max_developer_len = max(*[len(stat.developer) for stat in stats])
 
     for stat in stats:
-        times = list(map(lambda m: m.time, stat.measures))
+        times = list(map(lambda m: m.time, stat.measures)) or [0, 0]
         mean_time = mean(times)
 
         if stat.challenge not in measures:

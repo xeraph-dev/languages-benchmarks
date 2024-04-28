@@ -35,11 +35,14 @@ def export_markdown(measures: dict[str, ChallengeMeasure]):
                         and summ.developer == stat.developer,
                         level.summary,
                     )
-                )[0]
+                )
+                if not summary:
+                    continue
+
                 relative = (
                     "1"
                     if summary == level.summary[0]
-                    else f"{summary.mean:.1f}&#160;±&#160;{summary.stdev:.1f}"
+                    else f"{summary[0].mean:.1f}&#160;±&#160;{summary[0].stdev:.1f}"
                 )
                 md += f"| {str(stat.language)} | {str(stat.developer)} | {str(stat.mean).strip(" ")}&#160;±&#160;{str(stat.stdev).strip(" ")} | {str(stat.min).strip(" ")} | {str(stat.max).strip(" ")} | {relative} | {stat.successes}/{stat.fails}/{stat.timeouts}/{stat.skips} |\n"
 
