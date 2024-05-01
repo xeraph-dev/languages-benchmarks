@@ -32,6 +32,10 @@
 
 ## Benchmarks
 
+> [!IMPORTANT]
+> The minimum python version supported is `3.12`
+
+> [!NOTE]
 > The benchmark statistics will be exported to the [bench.md](./bench.md) file
 
 To run the benchmarks, execute the command from the repository's root directory
