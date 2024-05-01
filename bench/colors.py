@@ -30,7 +30,12 @@ BGMAGENTA = "\x1b[045m"
 BGCYAN = "\x1b[046m"
 BGWHITE = "\x1b[047m"
 BGGRAY = "\x1b[100m"
+COLOR_PATTERN = re.compile(r"\x1b\[\d{3}m", re.IGNORECASE)
 RESET_PATTERN = re.compile(r"\x1b\[000m", re.IGNORECASE)
+
+
+def clear(txt: str) -> str:
+    return COLOR_PATTERN.sub("", txt)
 
 
 def reset(txt: str, COLOR: str | None = None) -> str:

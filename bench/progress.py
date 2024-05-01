@@ -5,6 +5,7 @@
 #  LICENSE file in the root directory of this source tree.
 
 import os
+import sys
 from enum import Enum
 from typing import Callable
 
@@ -41,12 +42,18 @@ class Progress:
         self.prev_bar = ""
 
     def error(self) -> None:
+        if not sys.stdout.isatty():
+            return
         self.states[self.count - 1] = ProgressState.ERROR
 
     def clear(self) -> None:
+        if not sys.stdout.isatty():
+            return
         print("\r\033[2K", end="")
 
     def bar(self, count: bool = False) -> None:
+        if not sys.stdout.isatty():
+            return
         index = self.count if self.count == 0 else self.count - 1
         color = self.states[index].color()
 

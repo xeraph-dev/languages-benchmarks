@@ -1,66 +1,73 @@
 [general]
-    max_timeouts=3
-    runs        =5
-    timeout     =30
-    warmups     =2
+max_timeouts = 3
+runs = 5
+timeout = 30
+warmups = 2
 
 [[developers]]
-    username="xeraph-dev"
+username = "xeraph-dev"
 [[developers]]
-    username="el-garro"
+username = "el-garro"
 [[developers]]
-    username="MoskitoSantana"
+username = "MoskitoSantana"
 
 [[languages]]
-    build       ="go build -o build/:challenge-:developer cmd/:challenge/:developer/main.go"
-    cmd         ="build/:challenge-:developer"
-    name        ="go"
-    simple_build=false
+build = "go build -o build/:challenge-:developer cmd/:challenge/:developer/main.go"
+cmd = "build/:challenge-:developer"
+name = "go"
 [[languages]]
-    build       ="swift build -c release"
-    cmd         =".build/release/:challenge-:developer"
-    name        ="swift"
-    simple_build=true
+build = "swift build -c release"
+cmd = ".build/release/:challenge-:developer"
+name = "swift"
+simple_build = true
 [[languages]]
-    build       ="zig build -Doptimize=ReleaseFast"
-    cmd         ="zig-out/bin/:challenge-:developer"
-    name        ="zig"
-    simple_build=true
+build = "zig build -Doptimize=ReleaseFast"
+cmd = "zig-out/bin/:challenge-:developer"
+name = "zig"
+simple_build = true
+[[languages]]
+cmd = "python :challenge/:developer/main.py"
+name = "python"
+no_build = true
+[[languages]]
+cmd = "bun :challenge/:developer/main.js"
+name = "javascript"
+no_build = true
 
 [[challenges]]
-    key ="aoc-year2015-day4"
-    name="Advent of Code - Year 2015 - Day 4"
-    [[challenges.levels]]
-        input =["yzbqklnj", "5"]
-        name  ="5 zeros"
-        output="282749"
-    [[challenges.levels]]
-        input =["yzbqklnj", "6"]
-        name  ="6 zeros"
-        output="9962624"
-    [[challenges.levels]]
-        input =["yzbqklnj", "7"]
-        name  ="7 zeros"
-        output="57551859"
-    [[challenges.developers]]
-        languages=["swift"]
-        username ="xeraph-dev"
-    [[challenges.developers]]
-        languages=["go"]
-        username ="el-garro"
-    [[challenges.developers]]
-        languages=["zig"]
-        username ="MoskitoSantana"
+key = "aoc-year2015-day4"
+name = "Advent of Code - Year 2015 - Day 4"
+[[challenges.levels]]
+input = ["yzbqklnj", "5"]
+name = "5 zeros"
+output = "282749"
+[[challenges.levels]]
+input = ["yzbqklnj", "6"]
+name = "6 zeros"
+output = "9962624"
+[[challenges.levels]]
+input = ["yzbqklnj", "7"]
+name = "7 zeros"
+output = "57551859"
+[[challenges.developers]]
+languages = ["swift", "javascript"]
+username = "xeraph-dev"
+[[challenges.developers]]
+languages = ["go"]
+username = "el-garro"
+[[challenges.developers]]
+languages = ["zig"]
+username = "MoskitoSantana"
 [[challenges]]
-    key ="aoc-year2020-day15"
-    name="Advent of Code - Year 2020 - Day 15"
-    [[challenges.levels]]
-        input =["30000000", "2", "0", "1", "9", "5", "19"]
-        name  ="30000000th number spoken"
-        output="62714"
-    [[challenges.developers]]
-        languages=["swift"]
-        username ="xeraph-dev"
-    [[challenges.developers]]
-        languages=["go"]
-        username ="el-garro"
+key = "aoc-year2020-day15"
+name = "Advent of Code - Year 2020 - Day 15"
+[[challenges.levels]]
+input = ["30000000", "2", "0", "1", "9", "5", "19"]
+name = "30000000th number spoken"
+output = "62714"
+[[challenges.developers]]
+languages = ["swift"]
+username = "xeraph-dev"
+[[challenges.developers]]
+languages = ["go"]
+username = "el-garro"

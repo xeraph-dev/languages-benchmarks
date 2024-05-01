@@ -34,6 +34,7 @@ def build_challenges(
             for developer in challenge.developers
             for language in developer.languages
             if not config.languages[language].simple_build
+            and not config.languages[language].no_build
         ]
     )
 
@@ -43,6 +44,7 @@ def build_challenges(
         for challenge in challenges
         for language in challenge.languages
         if config.languages[language.name].simple_build
+        and not config.languages[language.name].no_build
         and language not in simple_build_languages
     ]
     simple_build_languages.sort(key=lambda lang: lang.name)
@@ -88,6 +90,7 @@ def build_challenges(
             language
             for language in challenge.languages
             if not config.languages[language.name].simple_build
+            and not config.languages[language.name].no_build
         ]
 
         for language in languages:

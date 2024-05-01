@@ -7,7 +7,6 @@
 import os
 import tomllib
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Any
 
 from .colors import blue, cyan, green, yellow
@@ -41,17 +40,26 @@ class Language:
     cmd_path: str
     build: str
     simple_build: bool
+    no_build: bool
 
     def __init__(self, data: dict[str, Any]) -> None:
         self.name = data["name"]
         self.cmd_path = data["cmd"]
-        self.build = data["build"]
-        self.simple_build = data["simple_build"]
+        self.build = data["build"] if "build" in data else ""
+        self.simple_build = data["simple_build"] if "simple_build" in data else False
+        self.no_build = data["no_build"] if "no_build" in data else False
 
-    def cmd(self, challenge: str, developer: str) -> Path:
-        path = self.cmd_path.replace(":challenge", challenge)
+    def cmd(self, challenge: str, developer: str) -> list[str]:
+        split = self.cmd_path.split(" ")
+        command = split[0]
+        path = " ".join(split[1:]) if len(split) > 1 else self.cmd_path
+        path = path.replace(":challenge", challenge)
         path = path.replace(":developer", developer)
-        return Path(path)
+        cmd = []
+        if self.no_build:
+            cmd.append(command)
+        cmd.append(path)
+        return cmd
 
     def build_cmd(self, challenge: str, developer: str) -> list[str]:
         cmd = self.build.replace(":challenge", challenge)

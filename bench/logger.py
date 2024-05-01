@@ -5,9 +5,11 @@
 #  LICENSE file in the root directory of this source tree.
 
 import logging
+import os
 import time
+from pathlib import Path
 
-from .colors import blue, green, magenta, red, yellow
+from .colors import blue, clear, green, magenta, red, yellow
 
 
 class Formatter(logging.Formatter):
@@ -34,13 +36,26 @@ class Formatter(logging.Formatter):
         return super().format(record)
 
 
+class FileFormatter(Formatter):
+    def format(self, record: logging.LogRecord) -> str:
+        return clear(super().format(record))
+
+
 def create_logger(verbose: int) -> logging.Logger:
     logger = logging.getLogger()
     logger.setLevel(50 - verbose * 10)
-    formatter = Formatter(
-        "%(datetime)s - %(filename)s:%(lineno)s - %(levelname)s - %(message)s"
-    )
+    fmt = "%(datetime)s - %(filename)s:%(lineno)s - %(levelname)s - %(message)s"
+    formatter = Formatter(fmt)
+    file_formatter = FileFormatter(fmt)
     ch = logging.StreamHandler()
     ch.setFormatter(formatter)
     logger.addHandler(ch)
+
+    logs_path = Path(os.getcwd()).joinpath(".logs", "logs.log")
+    if not logs_path.exists():
+        logs_path.parent.mkdir()
+    fh = logging.FileHandler(logs_path)
+    fh.setFormatter(file_formatter)
+    logger.addHandler(fh)
+
     return logger

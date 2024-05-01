@@ -87,13 +87,15 @@ def compute(
 
     cwd = Path(os.getcwd()).joinpath(language.name)
     cmd = config.languages[language.name].cmd(challenge.key, developer.username)
+    no_build = config.languages[language.name].no_build
+    executable = cmd[1] if no_build else cmd[0]
 
-    if not cwd.joinpath(cmd).exists():
-        logger.warning(f"Missing file {cmd}, skipping")
+    if not cwd.joinpath(executable).exists():
+        logger.warning(f"Missing file {executable}, skipping")
         stat.skips = config.general.runs
         return
 
-    cmd = [str(cmd)] + level.input
+    cmd = cmd + level.input
 
     for i in range(config.general.warmups + config.general.runs):
         with progress:
@@ -104,7 +106,6 @@ def compute(
                 logger.warning(f"Reached max timeouts for {cmd}, skipping")
                 stat.skips = config.general.runs - config.general.warmups - i
                 break
-
             try:
                 start = time.time_ns()
                 proc = subprocess.Popen(cmd, cwd=cwd, stdout=subprocess.PIPE)
@@ -130,7 +131,7 @@ def compute(
                     continue
                 stat.timeouts += 1
                 progress.error()
-            except OSError:
+            except OSError as e:
                 if i < config.general.warmups:
                     continue
                 stat.fails += 1

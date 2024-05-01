@@ -8,57 +8,68 @@ import unittest
 
 from ..colors import (
     BGBLACK,
-    BGBLUE,
-    BGCYAN,
-    BGGRAY,
-    BGGREEN,
-    BGMAGENTA,
-    BGRED,
-    BGWHITE,
-    BGYELLOW,
-    BLACK,
-    BLUE,
-    BRIGHT,
-    CYAN,
-    DIM,
-    GRAY,
-    GREEN,
-    HIDDEN,
-    MAGENTA,
-    RED,
-    RESET,
-    REVERSE,
-    UNDERSCORE,
-    WHITE,
-    YELLOW,
     bgblack,
+    BGBLUE,
     bgblue,
+    BGCYAN,
     bgcyan,
+    BGGRAY,
     bggray,
+    BGGREEN,
     bggreen,
+    BGMAGENTA,
     bgmagenta,
+    BGRED,
     bgred,
+    BGWHITE,
     bgwhite,
+    BGYELLOW,
     bgyellow,
+    BLACK,
     black,
+    BLUE,
     blue,
+    BRIGHT,
     bright,
+    clear,
+    CYAN,
     cyan,
+    DIM,
     dim,
+    GRAY,
     gray,
+    GREEN,
     green,
+    HIDDEN,
     hidden,
+    MAGENTA,
     magenta,
+    RED,
     red,
+    RESET,
     reset,
+    REVERSE,
     reverse,
+    UNDERSCORE,
     underscore,
+    WHITE,
     white,
+    YELLOW,
     yellow,
 )
 
 
 class TestColors(unittest.TestCase):
+    def test_clear(self) -> None:
+        self.assertEqual(
+            clear(
+                bggray(
+                    f"{blue("complex")} foreground {bgmagenta(f"and {red("background")}")} color"
+                )
+            ),
+            "complex foreground and background color",
+        )
+
     def test_reset(self) -> None:
         self.assertEqual(reset("test"), f"test{RESET}")
 
