@@ -166,8 +166,8 @@ class MeasureStat:
         data_line = data_line.ljust(line_len)
 
         return f"""\
-    {language_space}{self.language} by {self.developer}{developer_space} - {green("mean")} ± {green("σ")}    {self.mean} ± {self.stdev}
-    {dim(data_line)} {magenta("min")} … {magenta("max")}  {self.min} … {self.max}\
+{" " * 6}{language_space}{self.language} by {self.developer}{developer_space} - {green("mean")} ± {green("σ")}    {self.mean} ± {self.stdev}
+{" " * 6}{dim(data_line)} {magenta("min")} … {magenta("max")}  {self.min} … {self.max}\
 """
 
 
@@ -180,9 +180,9 @@ class ChallengeLevelSummary:
 
     def __format__(self, format_spec: str) -> str:
         if format_spec == "faster":
-            return f"      {self.language} by {self.developer} ran"
+            return f"{" " * 6}{self.language} by {self.developer} ran"
 
-        return f"""      {yellow(f"{self.mean: >5.1f}")} ± {yellow(f"{self.stdev: >4.1f}")} times faster than {self.language} by {self.developer}"""
+        return f"""{" " * 9}{yellow(f"{self.mean: >5.1f}")} ± {yellow(f"{self.stdev: >4.1f}")} times faster than {self.language} by {self.developer}"""
 
 
 @dataclass
@@ -197,15 +197,21 @@ class ChallengeLevelMeasure:
         self.summary = []
 
     def __format__(self, format_spec: str) -> str:
-        return (
-            f"{self.name}\n"
-            + "\n\n".join([f"{stat}" for stat in self.stats] + ["    Summary\n"])
+        summary = (
+            f"\n\n{" " * 3}Summary\n"
             + "\n".join(
                 [
                     f"{summary:faster}" if summary is self.summary[0] else f"{summary}"
                     for summary in self.summary
                 ]
             )
+            if len(self.summary) > 1
+            else ""
+        )
+        return (
+            f"{" " * 3}{self.name}\n"
+            + "\n\n".join([f"{stat}" for stat in self.stats])
+            + summary
         )
 
 
@@ -223,15 +229,15 @@ class ChallengeMeasure:
 
     def __format__(self, format_spec: str) -> str:
         return f"{self.name}\n" + "\n\n".join(
-            [f"  {level}" for level in self.levels.values()]
+            [f"{level}" for level in self.levels.values()]
         )
 
 
 def measure(config: Config, stats: list[BenchmarkStats]) -> dict[str, ChallengeMeasure]:
     measures = dict[str, ChallengeMeasure]()
 
-    max_language_len = max(*[len(stat.language) for stat in stats])
-    max_developer_len = max(*[len(stat.developer) for stat in stats])
+    max_language_len = max(*([len(stat.language) for stat in stats] + [0]))
+    max_developer_len = max(*([len(stat.developer) for stat in stats] + [0]))
 
     for stat in stats:
         times = list(map(lambda m: m.time, stat.measures)) or [0, 0]
