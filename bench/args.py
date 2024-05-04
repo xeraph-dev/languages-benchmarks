@@ -3,19 +3,12 @@
 #
 #  This source code is licensed under the BSD-style license found in the
 #  LICENSE file in the root directory of this source tree.
-
 from argparse import Action, ArgumentParser, Namespace
 from logging import Logger
 from typing import Any, Sequence, Tuple
 
 from .colors import green, red, yellow
-from .config import (
-    Challenge,
-    ChallengeDeveloper,
-    ChallengeLanguage,
-    ChallengeLevel,
-    Config,
-)
+from .config import Challenge, Config
 from .logger import create_logger
 
 
@@ -37,7 +30,6 @@ class SplitArgs(Action):
         super.__call__(parser, namespace, values, option_string)
 
 
-# region setup
 def setup(parser: ArgumentParser, config: Config) -> None:
     verbose_description = "increase output verbosity"
     challenges_description = "Benchmark chosen challenges"
@@ -255,7 +247,108 @@ def parse(parser: ArgumentParser) -> Namespace:
     return args
 
 
-# region check
+def check_challenges(logger: Logger, config: Config, args: Namespace) -> None:
+    challenges_range = sorted(config.challenges.keys())
+    challenges_str = ", ".join(map(yellow, challenges_range))
+    invalid_challenges = set(args.challenges).difference(challenges_range)
+    if invalid_challenges:
+        logger.fatal(
+            f"Invalid challenge, got {red(invalid_challenges.pop())}, expect some of [{challenges_str}]"
+        )
+        exit(1)
+
+
+def check_levels(logger: Logger, args: Namespace, challenge: Challenge) -> None:
+    if "levels" not in args:
+        return
+
+    levels_range = sorted(map(str, range(1, len(challenge.levels) + 1)))
+    levels_str = ", ".join(map(yellow, levels_range))
+    invalid_levels = set(args.levels).difference(levels_range)
+    if invalid_levels:
+        logger.fatal(
+            f"Invalid level, got {red(invalid_levels.pop())}, expect some of [{levels_str}]"
+        )
+        exit(1)
+
+
+def check_languages(
+    logger: Logger, config: Config, args: Namespace, challenge: Challenge
+) -> None:
+    languages_range = sorted(
+        map(lambda lang: lang.name, challenge.languages)
+        if "levels" in args
+        else config.languages.keys()
+    )
+    languages_str = ", ".join(map(yellow, languages_range))
+    invalid_languages = set(args.languages).difference(languages_range)
+    if invalid_languages:
+        logger.fatal(
+            f"Invalid language, got {red(invalid_languages.pop())}, expect some of [{languages_str}]"
+        )
+        exit(1)
+
+
+def check_developer(
+    logger: Logger, config: Config, args: Namespace, challenge: Challenge
+) -> None:
+    developers_range = sorted(
+        map(lambda dev: dev.username, challenge.developers)
+        if "levels" in args
+        else config.developers.keys()
+    )
+    developers_str = ", ".join(map(yellow, developers_range))
+    invalid_developers = set(args.developers).difference(developers_range)
+    if invalid_developers:
+        logger.fatal(
+            f"Invalid developer, got {red(invalid_developers.pop())}, expect some of [{developers_str}]"
+        )
+        exit(1)
+
+
+def set_levels(args: Namespace, challenge: Challenge) -> None:
+    if "levels" not in args:
+        return
+    levels = []
+    [
+        levels.append(challenge_level)
+        for level in args.levels
+        for index, challenge_level in enumerate(challenge.levels)
+        if str(index + 1) == level and challenge_level not in levels
+    ]
+    challenge.levels = levels
+
+
+def set_languages(args: Namespace, challenge: Challenge) -> None:
+    languages = []
+    [
+        languages.append(challenge_language)
+        for language in args.languages
+        for developer in args.developers
+        for challenge_language in challenge.languages
+        for challenge_developer in challenge.developers
+        if challenge_language.name == language
+        and challenge_developer.username == developer
+        and challenge_language.name in challenge_developer.languages
+        and challenge_language not in languages
+    ]
+    challenge.languages = languages
+
+
+def set_developers(args: Namespace, challenge: Challenge) -> None:
+    developers = []
+    [
+        developers.append(challenge_developer)
+        for developer in args.developers
+        for challenge_developer in challenge.developers
+        for language in challenge_developer.languages
+        if challenge_developer.username == developer
+        and language in args.languages
+        and challenge_developer not in developers
+    ]
+    challenge.developers = developers
+
+
 def check(logger: Logger, config: Config, args: Namespace) -> list[Challenge]:
     challenges = list[Challenge]()
 
@@ -265,119 +358,31 @@ def check(logger: Logger, config: Config, args: Namespace) -> list[Challenge]:
         if challenge.key not in args.challenges:
             continue
 
+        check_levels(logger, args, challenge)
+        set_levels(args, challenge)
+
+        check_languages(logger, config, args, challenge)
+        set_languages(args, challenge)
+
+        check_developer(logger, config, args, challenge)
+        set_developers(args, challenge)
+
+        if not challenge.levels or not challenge.languages or not challenge.developers:
+            continue
+
         challenges.append(challenge)
         logger.info(f"Challenge {challenge} included")
 
-        check_levels(challenge, logger, args)
-        set_levels(challenge, logger, args)
+        developers_str = ", ".join(map(format, challenge.developers))
+        logger.info(f"Challenge {challenge}'s developers [{developers_str}] included")
 
-        check_languages(challenge, logger, config, args)
-        set_languages(challenge, logger, args)
+        levels_str = ", ".join(map(format, challenge.levels))
+        logger.info(f"Challenge {challenge}'s levels [{levels_str}] included")
 
-        check_developers(challenge, logger, args)
-        set_developers(challenge, logger, args)
+        languages_str = ", ".join(map(format, challenge.languages))
+        logger.info(f"Challenge {challenge}'s languages [{languages_str}] included")
 
     return challenges
-
-
-def check_challenges(logger: Logger, config: Config, args: Namespace) -> None:
-    for challenge in args.challenges:
-        if challenge in config.challenges.keys():
-            continue
-
-        challenges_str = ", ".join(map(yellow, config.challenges.keys()))
-        logger.fatal(
-            f"Invalid challenge, got {red(challenge)}, expect some of [{challenges_str}]"
-        )
-        exit(1)
-
-
-def check_levels(challenge: Challenge, logger: Logger, args: Namespace) -> None:
-    if "levels" not in args:
-        return
-
-    for level in args.levels:
-        level_list = list(map(str, range(1, len(challenge.levels) + 1)))
-        if level in level_list:
-            continue
-
-        levels_str = ", ".join(map(yellow, level_list))
-        logger.fatal(f"Invalid level, got {red(level)}, expect some of [{levels_str}]")
-        exit(1)
-
-
-def check_languages(
-    challenge: Challenge, logger: Logger, config: Config, args: Namespace
-) -> None:
-    if "levels" not in args:
-        return
-
-    for language in args.languages:
-        language_list = list(map(lambda language: language.name, challenge.languages))
-        if not challenge.languages or language in language_list:
-            continue
-
-        language_str = ", ".join(map(yellow, config.languages.keys()))
-        logger.fatal(
-            f"Invalid language, got {red(language)}, expect some of [{language_str}]"
-        )
-        exit(1)
-
-
-def check_developers(challenge: Challenge, logger: Logger, args: Namespace) -> None:
-    if "levels" not in args:
-        return
-
-    for developer in args.developers:
-        developer_list = list(map(lambda dev: dev.username, challenge.developers))
-        if developer in developer_list:
-            continue
-
-        developer_str = ", ".join(
-            map(lambda dev: yellow(dev.username), challenge.developers)
-        )
-        logger.fatal(
-            f"Invalid developer, got {red(developer)}, expect some of [{developer_str}]"
-        )
-        exit(1)
-
-
-def set_levels(challenge: Challenge, logger: Logger, args: Namespace) -> None:
-    levels = list[ChallengeLevel]()
-    for level in challenge.levels:
-        level_index = str(challenge.levels.index(level) + 1)
-        if "levels" in args and level_index not in args.levels:
-            continue
-        levels.append(level)
-    challenge.levels = levels
-    levels_str = ", ".join(map(format, levels))
-    logger.info(f"Challenge {challenge}'s levels [{levels_str}] included")
-
-
-def set_languages(challenge: Challenge, logger: Logger, args: Namespace) -> None:
-    languages = list[ChallengeLanguage]()
-    for language in challenge.languages:
-        if language.name not in args.languages:
-            continue
-        languages.append(language)
-    challenge.languages = languages
-    languages_str = ", ".join(map(format, languages))
-    logger.info(f"Challenge {challenge}'s languages [{languages_str}] included")
-
-
-def set_developers(challenge: Challenge, logger: Logger, args: Namespace) -> None:
-    developers = list[ChallengeDeveloper]()
-    for developer in challenge.developers:
-        if developer.username not in args.developers:
-            continue
-        for language in developer.languages:
-            if language not in args.languages:
-                continue
-            developers.append(developer)
-            break
-    challenge.developers = developers
-    developers_str = ", ".join(map(format, developers))
-    logger.info(f"Challenge {challenge}'s developers [{developers_str}] included")
 
 
 def parse_args(config: Config) -> Tuple[Logger, list[Challenge]]:
