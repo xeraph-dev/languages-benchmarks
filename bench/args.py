@@ -382,6 +382,10 @@ def check(logger: Logger, config: Config, args: Namespace) -> list[Challenge]:
         languages_str = ", ".join(map(format, challenge.languages))
         logger.info(f"Challenge {challenge}'s languages [{languages_str}] included")
 
+    if not challenges:
+        logger.fatal(f"No challenge matches")
+        exit(1)
+
     return challenges
 
 
