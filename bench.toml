@@ -33,6 +33,10 @@ no_build = true
 cmd = "bun :challenge/:developer/main.js"
 name = "javascript"
 no_build = true
+[[languages]]
+build = "make --directory :challenge/:developer"
+cmd = ":challenge/:developer/main.out"
+name = "c"
 
 [[challenges]]
 key = "aoc-year2015-day4"
@@ -50,7 +54,7 @@ input = ["yzbqklnj", "7"]
 name = "7 zeros"
 output = "57551859"
 [[challenges.developers]]
-languages = ["swift", "javascript"]
+languages = ["c", "swift", "javascript"]
 username = "xeraph-dev"
 [[challenges.developers]]
 languages = ["go"]

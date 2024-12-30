@@ -7,7 +7,7 @@ pub fn build(b: *std.Build) void {
 
     const exe = b.addExecutable(.{
         .name = "aoc-year2015-day4-MoskitoSantana",
-        .root_source_file = .{ .path = "src/aoc-year2015-day4/MoskitoSantana/main.zig" },
+        .root_source_file = b.path("src/aoc-year2015-day4/MoskitoSantana/main.zig"),
         .target = target,
         .optimize = optimize,
     });
