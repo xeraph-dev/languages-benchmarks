@@ -4,12 +4,14 @@ runs = 5
 timeout = 30
 warmups = 2
 
+
 [[developers]]
 username = "xeraph-dev"
 [[developers]]
 username = "el-garro"
 [[developers]]
 username = "MoskitoSantana"
+
 
 [[languages]]
 build = "go build -o build/:challenge-:developer cmd/:challenge/:developer/main.go"
@@ -38,6 +40,7 @@ build = "make --directory :challenge/:developer"
 cmd = ":challenge/:developer/main.out"
 name = "c"
 
+
 [[challenges]]
 key = "aoc-year2015-day4"
 name = "Advent of Code - Year 2015 - Day 4"
@@ -62,6 +65,7 @@ username = "el-garro"
 [[challenges.developers]]
 languages = ["zig"]
 username = "MoskitoSantana"
+
 [[challenges]]
 key = "aoc-year2020-day15"
 name = "Advent of Code - Year 2020 - Day 15"
@@ -72,6 +76,17 @@ output = "62714"
 [[challenges.developers]]
 languages = ["swift"]
 username = "xeraph-dev"
+[[challenges.developers]]
+languages = ["go"]
+username = "el-garro"
+
+[[challenges]]
+key = "zebra"
+name = "Zebra Puzzle"
+[[challenges.levels]]
+input = []
+name = "Zebra Puzzle"
+output = "Norwegian Japanese"
 [[challenges.developers]]
 languages = ["go"]
 username = "el-garro"
