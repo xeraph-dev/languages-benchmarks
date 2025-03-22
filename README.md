@@ -81,3 +81,14 @@ The program must accept positional arguments in the below way
 Try locally with the inputs provided on the challenge page
 
 Just compute the requested number and print it
+
+## [Zebra Puzzle](https://exercism.org/exercises/zebra-puzzle)
+
+The problem just needs to return the solution in the format: "\<who drinks water\> \<who owns the zebra\>", for example:
+
+```shell
+> zebra
+Norwegian Japanese
+```
+
+Make your best effort to compute the solution instead of just returning it.
