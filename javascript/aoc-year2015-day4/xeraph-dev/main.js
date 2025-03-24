@@ -22,7 +22,7 @@ const getStartingZeros = arr => {
 for (let i = 0; ; i++) {
   const hash = Bun.MD5.hash(`${secret}${i}`)
   const zeros = getStartingZeros(hash)
-  if (zeros === zeros_count) {
+  if (zeros >= zeros_count) {
     console.log(i)
     break
   }

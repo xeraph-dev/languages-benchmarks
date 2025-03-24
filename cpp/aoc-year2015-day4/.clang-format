@@ -1,0 +1,5 @@
+BasedOnStyle: LLVM
+AlignTrailingComments:
+  Kind: Always
+  OverEmptyLines: 2
+IndentWidth: 2

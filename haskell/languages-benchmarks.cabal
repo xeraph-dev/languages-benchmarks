@@ -18,6 +18,7 @@ executable aoc-year2015-day4
   build-depends:
       base >=4.7 && <5
     , bytestring
+    , containers
     , cryptonite
     , memory
     , parallel

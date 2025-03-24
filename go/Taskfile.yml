@@ -2,9 +2,14 @@ version: "3"
 
 tasks:
   default:
-    deps: [build:aoc-year2015-day4]
+    deps: [build:aoc-year2015-day4, build:aoc-year2020-day15]
 
   build:aoc-year2015-day4:
     cmds: [go build -o build/aoc-year2015-day4 cmd/aoc-year2015-day4/main.go]
     sources: [cmd/aoc-year2015-day4/main.go]
     generates: [build/aoc-year2015-day4]
+
+  build:aoc-year2020-day15:
+    cmds: [go build -o build/aoc-year2020-day15 cmd/aoc-year2020-day15/main.go]
+    sources: [cmd/aoc-year2020-day15/main.go]
+    generates: [build/aoc-year2020-day15]
