@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"time"
 )
 
 var Logging bool = true
 
-func Solve(initialPopulation int, selectCount int, childrenCount, newRandomCount int, mutationStrenght int, fitnessTarget int) {
+func Solve(initialPopulation int, selectCount int, childrenCount int, newRandomCount int, mutationStrenght int, fitnessTarget int) {
 	started := time.Now()
 
 	population := make([]Candidate, 0, initialPopulation)
@@ -35,25 +36,10 @@ func Solve(initialPopulation int, selectCount int, childrenCount, newRandomCount
 			zebraOwner := ""
 
 			if Logging {
-				fmt.Print("\nFitness target reached. Best candidate:\n\n")
-				fmt.Println("   | Color      | Country    | Pet        | Drink      | Hobby      |")
-				fmt.Println("---|------------|------------|------------|------------|------------|")
+				PrintCandidate(population[0])
 			}
 
-			for i, house := range population[0] {
-				if Logging {
-					fmt.Printf(
-						"%02d | %s | %s | %s | %s | %s |\n",
-						i+1,
-						StringPad(house.Color, 10),
-						StringPad(house.Nationality, 10),
-						StringPad(house.Pet, 10),
-						StringPad(house.Drink, 10),
-						StringPad(house.Hobby, 10),
-					)
-
-				}
-
+			for _, house := range population[0] {
 				if house.Drink == "water" {
 					waterDrinker = house.Nationality
 				}
@@ -86,8 +72,29 @@ func Solve(initialPopulation int, selectCount int, childrenCount, newRandomCount
 
 }
 
+func PrintCandidate(candidate Candidate) {
+	fmt.Print("\nFitness target reached. Best candidate:\n\n")
+	fmt.Println("   | Color      | Country    | Pet        | Drink      | Hobby      |")
+	fmt.Println("---|------------|------------|------------|------------|------------|")
+
+	for i, house := range candidate {
+		fmt.Printf(
+			"%02d | %s | %s | %s | %s | %s |\n",
+			i+1,
+			StringPad(house.Color, 10),
+			StringPad(house.Nationality, 10),
+			StringPad(house.Pet, 10),
+			StringPad(house.Drink, 10),
+			StringPad(house.Hobby, 10),
+		)
+	}
+}
+
 func main() {
-	Logging = true
+	if len(os.Args) == 2 && os.Args[1] == "-s" {
+		Logging = false
+	}
+
 	initialPopulation := 50000 // Big initial population adds diversity
 	stablePopulation := 2000
 
