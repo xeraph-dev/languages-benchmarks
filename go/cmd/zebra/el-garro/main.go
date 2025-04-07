@@ -2,10 +2,13 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"strings"
 	"time"
 	"zebra/genetics"
 )
+
+var verbose bool = false
 
 func Solve(population int, mutationStrenght float64, targetFitness float64) {
 	started := time.Now()
@@ -18,7 +21,7 @@ func Solve(population int, mutationStrenght float64, targetFitness float64) {
 
 	for {
 
-		if simulator.GetGenerationNumber()%100 == 0 || simulator.GetBestCreature().Fitness() >= targetFitness {
+		if verbose && (simulator.GetGenerationNumber()%100 == 0 || simulator.GetBestCreature().Fitness() >= targetFitness) {
 			fmt.Printf("Generation=%07d, BestFitness=%05.2f, TargetFitness=%05.2f, TimeElapsed=%v\n",
 				simulator.GetGenerationNumber(),
 				simulator.GetBestCreature().Fitness(),
@@ -28,7 +31,25 @@ func Solve(population int, mutationStrenght float64, targetFitness float64) {
 		}
 
 		if simulator.GetBestCreature().Fitness() >= targetFitness {
-			PrintCandidate(simulator.GetBestCreature().(*ZebraPuzzle))
+			if verbose {
+				PrintCandidate(simulator.GetBestCreature().(*ZebraPuzzle))
+			} else {
+				waterDrinker := ""
+				zebraOwner := ""
+
+				for _, house := range simulator.GetBestCreature().(*ZebraPuzzle).Genes {
+					if house.Drink == "Water" {
+						waterDrinker = house.Nationality
+					}
+
+					if house.Pet == "Zebra" {
+						zebraOwner = house.Nationality
+					}
+				}
+
+				fmt.Printf("%s %s\n", waterDrinker, zebraOwner)
+			}
+
 			break
 		}
 
@@ -58,6 +79,10 @@ func PrintCandidate(c *ZebraPuzzle) {
 }
 
 func main() {
+	if len(os.Args) == 2 && os.Args[1] == "-v" {
+		verbose = true
+	}
+
 	population := 10000
 	mutation := 1.0
 	targetFitness := 15.0
